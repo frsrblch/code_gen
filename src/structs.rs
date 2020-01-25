@@ -11,12 +11,10 @@ pub struct Struct {
 
 impl Display for Struct {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "{}", self.derives);
+        write!(f, "{}", self.derives).ok();
 
-        write!(f, "{vis}struct {name}",
-            vis = self.visibility,
-            name = self.name,
-        ).ok();
+        write!(f, "{vis}struct {name}", vis = self.visibility, name = self.name).ok();
+
         match &self.fields {
             Fields::None => {
                 writeln!(f, ";")
