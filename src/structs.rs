@@ -5,14 +5,17 @@ use crate::formatting::{CamelCase, SnakeCase};
 pub struct Struct {
     pub name: CamelCase,
     pub visibility: Visibility,
+    pub derives: Derives,
     pub fields: Fields,
 }
 
 impl Display for Struct {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "{}struct {}",
-            self.visibility,
-            self.name,
+        write!(f, "{}", self.derives);
+
+        write!(f, "{vis}struct {name}",
+            vis = self.visibility,
+            name = self.name,
         ).ok();
         match &self.fields {
             Fields::None => {
@@ -103,6 +106,7 @@ mod tests {
         let s = Struct {
             name: "Test".try_into().unwrap(),
             visibility: Visibility::Private,
+            derives: Derives::new(),
             fields: Fields::None,
         };
 
@@ -114,6 +118,7 @@ mod tests {
         let s = Struct {
             name: "Test".try_into().unwrap(),
             visibility: Visibility::Pub,
+            derives: Derives::new(),
             fields: Fields::None,
         };
 
@@ -125,6 +130,7 @@ mod tests {
         let s = Struct {
             name: "Test".try_into().unwrap(),
             visibility: Visibility::PubCrate,
+            derives: Derives::new(),
             fields: Fields::None,
         };
 
@@ -136,6 +142,7 @@ mod tests {
         let s = Struct {
             name: "Test".try_into().unwrap(),
             visibility: Visibility::Pub,
+            derives: Derives::new(),
             fields: Fields::Tuple(vec![
                 AnonField {
                     visibility: Visibility::Pub,
@@ -156,6 +163,7 @@ mod tests {
         let s = Struct {
             name: "Test".try_into().unwrap(),
             visibility: Visibility::Pub,
+            derives: Derives::new(),
             fields: Fields::Standard(vec![
                 Field {
                     visibility: Visibility::Pub,
@@ -173,6 +181,7 @@ mod tests {
         let arena = Struct {
             name: "System".try_into().unwrap(),
             visibility: Visibility::Pub,
+            derives: Derives::new(),
             fields: Fields::Standard(vec![
                 Field {
                     visibility: Visibility::Pub,
@@ -191,5 +200,17 @@ mod tests {
             "pub struct System {\n    pub name: Component<Self, String>,\n    pub position: Component<Self, Position>,\n}\n",
             arena.to_string()
         );
+    }
+
+    #[test]
+    fn struct_with_derives() {
+        let s = Struct {
+            name: "Test".try_into().unwrap(),
+            visibility: Visibility::Pub,
+            derives: Derives::with_debug_default(),
+            fields: Fields::None
+        };
+
+        assert_eq!("#[derive(Debug, Default)]\npub struct Test;\n", s.to_string());
     }
 }

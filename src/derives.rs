@@ -6,20 +6,24 @@ use std::iter::FromIterator;
 pub struct Derives(HashSet<Derive>);
 
 impl Derives {
-    pub fn debug() -> Self {
+    pub fn new() -> Self {
+        Derives::default()
+    }
+
+    pub fn with_debug() -> Self {
         let mut derives = Self::default();
         derives.insert(Derive::Debug);
         derives
     }
 
-    pub fn debug_default() -> Self {
+    pub fn with_debug_default() -> Self {
         let mut derives = Self::default();
         derives.insert(Derive::Debug);
         derives.insert(Derive::Default);
         derives
     }
 
-    pub fn debug_default_clone() -> Self {
+    pub fn with_debug_default_clone() -> Self {
         let mut derives = Self::default();
         derives.insert(Derive::Debug);
         derives.insert(Derive::Default);
@@ -62,8 +66,13 @@ impl FromIterator<Derive> for Derives {
 
 impl Display for Derives {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        if self.0.len() == 0 {
+            return Ok(());
+        }
+
         write!(f, "#[derive(").ok();
 
+        //
         let mut derives: Vec<Derive> = self.0.iter().copied().collect();
         derives.sort();
 
@@ -117,13 +126,19 @@ mod tests {
     fn display_test() {
         assert_eq!(
             "#[derive(Debug, Default, Clone)]\n",
-            Derives::debug_default_clone().to_string()
+            Derives::with_debug_default_clone().to_string()
         );
     }
 
     #[test]
+    fn empty_displays_nothing() {
+        let derives = Derives::new();
+        assert_eq!("", derives.to_string());
+    }
+
+    #[test]
     fn hash_implies_eq_and_partial_eq() {
-        let mut hash = Derives::default();
+        let mut hash = Derives::new();
         hash.insert(Derive::Hash);
 
         assert!(hash.0.contains(&Derive::Hash));
