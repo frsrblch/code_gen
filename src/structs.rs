@@ -83,6 +83,15 @@ impl Display for Field {
     }
 }
 
+impl Into<AnonField> for Field {
+    fn into(self) -> AnonField {
+        AnonField {
+            visibility: self.visibility,
+            field_type: self.field_type,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
