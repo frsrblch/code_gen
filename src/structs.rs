@@ -1,8 +1,9 @@
 use crate::*;
+use crate::formatting::{CamelCase, SnakeCase};
 
 #[derive(Debug, Clone)]
 pub struct Struct {
-    pub name: String,
+    pub name: CamelCase,
     pub visibility: Visibility,
     pub fields: Fields,
 }
@@ -68,7 +69,7 @@ impl Display for AnonField {
 #[derive(Debug, Clone)]
 pub struct Field {
     pub visibility: Visibility,
-    pub name: String,
+    pub name: SnakeCase,
     pub field_type: String,
 }
 
@@ -95,11 +96,12 @@ impl Into<AnonField> for Field {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::convert::TryInto;
 
     #[test]
     fn struct_none() {
         let s = Struct {
-            name: "Test".to_string(),
+            name: "Test".try_into().unwrap(),
             visibility: Visibility::Private,
             fields: Fields::None,
         };
@@ -110,7 +112,7 @@ mod tests {
     #[test]
     fn pub_struct_none() {
         let s = Struct {
-            name: "Test".to_string(),
+            name: "Test".try_into().unwrap(),
             visibility: Visibility::Pub,
             fields: Fields::None,
         };
@@ -121,7 +123,7 @@ mod tests {
     #[test]
     fn pub_crate_struct_none() {
         let s = Struct {
-            name: "Test".to_string(),
+            name: "Test".try_into().unwrap(),
             visibility: Visibility::PubCrate,
             fields: Fields::None,
         };
@@ -132,7 +134,7 @@ mod tests {
     #[test]
     fn tuple_struct() {
         let s = Struct {
-            name: "Test".to_string(),
+            name: "Test".try_into().unwrap(),
             visibility: Visibility::Pub,
             fields: Fields::Tuple(vec![
                 AnonField {
@@ -152,12 +154,12 @@ mod tests {
     #[test]
     fn field_struct() {
         let s = Struct {
-            name: "Test".to_string(),
+            name: "Test".try_into().unwrap(),
             visibility: Visibility::Pub,
             fields: Fields::Standard(vec![
                 Field {
                     visibility: Visibility::Pub,
-                    name: "field".to_string(),
+                    name: "field".try_into().unwrap(),
                     field_type: "u32".to_string()
                 },
             ])
@@ -169,17 +171,17 @@ mod tests {
     #[test]
     fn example() {
         let arena = Struct {
-            name: "System".to_string(),
+            name: "System".try_into().unwrap(),
             visibility: Visibility::Pub,
             fields: Fields::Standard(vec![
                 Field {
                     visibility: Visibility::Pub,
-                    name: "name".to_string(),
+                    name: "name".try_into().unwrap(),
                     field_type: "Component<Self, String>".to_string()
                 },
                 Field {
                     visibility: Visibility::Pub,
-                    name: "position".to_string(),
+                    name: "position".try_into().unwrap(),
                     field_type: "Component<Self, Position>".to_string()
                 },
             ]),
