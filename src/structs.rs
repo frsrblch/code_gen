@@ -136,6 +136,10 @@ pub struct Field {
 }
 
 impl Field {
+    pub fn from_type(type_name: CamelCase) -> Self {
+        Field::new(type_name.clone(), &type_name)
+    }
+
     pub fn new<E: Debug>(name: impl TryInto<SnakeCase, Error=E>, field_type: &str) -> Self {
         Field {
             visibility: Visibility::Pub,
