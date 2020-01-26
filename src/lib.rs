@@ -1,6 +1,7 @@
 use std::fmt::{Display, Formatter, Error};
 
 mod structs;
+mod impls;
 mod formatting;
 mod visibility;
 mod derives;
