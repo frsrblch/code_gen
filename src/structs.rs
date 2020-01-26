@@ -158,7 +158,8 @@ impl Field {
 impl Display for Field {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         write!(f,
-            "    {}{}: {},",
+            "{}{}{}: {},",
+            Indent(1),
             self.visibility,
             self.name,
             self.field_type,

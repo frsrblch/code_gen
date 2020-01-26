@@ -90,7 +90,8 @@ impl Display for Function {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         write!(
             f,
-            "    {}fn {}({}) {}{}",
+            "{}{}fn {}({}) {}{}",
+            Indent(1),
             self.visibility,
             self.name,
             self.parameters,
@@ -160,7 +161,7 @@ mod tests {
         let i = Impl::new(&Struct::new("Test"))
             .add_function(Function::new("test_fn")
                 .with_visibility(Visibility::Private)
-                .add_line(CodeLine::new(0, "panic!()")));
+                .add_line(CodeLine::new(1, "panic!()")));
 
         let expected = "impl Test {\n    fn test_fn() {\n        panic!()\n    }\n}\n";
 
@@ -174,7 +175,7 @@ mod tests {
         let i = Impl::new(&Struct::new("Test"))
             .add_function(Function::new("test_fn")
                 .with_return("u32")
-                .add_line(CodeLine::new(0, "panic!()")));
+                .add_line(CodeLine::new(1, "panic!()")));
 
         let expected = "impl Test {\n    pub fn test_fn() -> u32 {\n        panic!()\n    }\n}\n";
 

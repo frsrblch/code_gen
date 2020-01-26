@@ -191,7 +191,7 @@ impl Indent {
     }
 
     fn get_range(&self) -> Range<u8> {
-        Range { start: 0, end: self.0 + 1 }
+        Range { start: 0, end: self.0 }
     }
 }
 
