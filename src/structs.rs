@@ -2,7 +2,7 @@ use crate::*;
 use crate::formatting::{CamelCase, SnakeCase};
 use std::iter::FromIterator;
 use std::convert::TryInto;
-use std::any::Any;
+
 #[derive(Debug, Clone)]
 pub struct Struct {
     pub name: CamelCase,
@@ -33,7 +33,12 @@ impl Struct {
         self
     }
 
-    pub fn with_field(mut self, field: Field) -> Self {
+    pub fn with_fields(mut self, fields: Fields) -> Self {
+        self.fields = fields;
+        self
+    }
+
+    pub fn add_field(mut self, field: Field) -> Self {
         self.fields.0.push(field);
         self
     }
@@ -186,7 +191,7 @@ mod tests {
 
     #[test]
     fn field_struct() {
-        let s = Struct::new("Test").with_field(Field::new("field", "u32"));
+        let s = Struct::new("Test").add_field(Field::new("field", "u32"));
 
         assert_eq!("pub struct Test {\n    pub field: u32,\n}\n", s.to_string());
     }
@@ -194,8 +199,8 @@ mod tests {
     #[test]
     fn example() {
         let arena = Struct::new("System")
-            .with_field(Field::new("name", "Component<Self, String>"))
-            .with_field(Field::new("position", "Component<Self, Position>"));
+            .add_field(Field::new("name", "Component<Self, String>"))
+            .add_field(Field::new("position", "Component<Self, Position>"));
 
         assert_eq!(
             "pub struct System {\n    pub name: Component<Self, String>,\n    pub position: Component<Self, Position>,\n}\n",
