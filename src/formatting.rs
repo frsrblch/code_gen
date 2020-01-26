@@ -1,8 +1,17 @@
 use std::convert::TryFrom;
 use std::fmt::{Display, Formatter, Error};
+use std::ops::Deref;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct CamelCase(String);
+
+impl Deref for CamelCase {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 
 impl Display for CamelCase {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
@@ -37,6 +46,14 @@ impl TryFrom<&str> for CamelCase {
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct SnakeCase(String);
 
+impl Deref for SnakeCase {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
 impl Display for SnakeCase {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         self.0.fmt(f)
@@ -69,6 +86,14 @@ impl TryFrom<&str> for SnakeCase {
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct ScreamingSnakeCase(String);
+
+impl Deref for ScreamingSnakeCase {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 
 impl Display for ScreamingSnakeCase {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
