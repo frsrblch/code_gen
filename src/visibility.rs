@@ -7,6 +7,12 @@ pub enum Visibility {
     Private,
 }
 
+impl Default for Visibility {
+    fn default() -> Self {
+        Self::Pub
+    }
+}
+
 impl Display for Visibility {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         match self {
