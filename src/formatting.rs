@@ -204,6 +204,31 @@ impl Display for Indent {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct StrConcat<'a, T: Display> {
+    iter: &'a Vec<T>,
+    left_bound: &'a str,
+    right_bound: &'a str,
+    item_prepend: &'a str,
+    item_append: &'a str,
+    join: &'a str,
+}
+
+impl<'a, T: Display> Display for StrConcat<'a, T> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(f, "{}", self.left_bound).ok();
+
+        self.iter.into_iter().enumerate().for_each(|(i, s)| {
+            if i != 0 {
+                write!(f, "{}", self.join).ok();
+            }
+            write!(f, "{}{}{}", self.item_prepend, s, self.item_append).ok();
+        });
+
+        write!(f, "{}", self.right_bound)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -316,5 +341,21 @@ mod tests {
     #[test]
     fn indent_one_has_four_spaces() {
         assert_eq!("    ", Indent(1).to_string());
+    }
+
+    #[test]
+    fn str_concat_for_unique_references() {
+        let items = vec!["A", "B", "C"];
+
+        let concat = StrConcat {
+            iter: &items,
+            left_bound: "(",
+            right_bound: ")",
+            item_prepend: "&mut ",
+            item_append: "-1",
+            join: ", "
+        };
+
+        assert_eq!("(&mut A-1, &mut B-1, &mut C-1)", concat.to_string());
     }
 }
