@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 use std::fmt::{Display, Formatter, Error};
 use std::iter::FromIterator;
-use crate::CamelCase;
+use crate::{CamelCase, StrConcat};
 
 #[derive(Debug, Default, Clone)]
 pub struct Derives(HashSet<Derive>);
@@ -51,6 +51,23 @@ impl Derives {
 
         self.0.insert(derive);
     }
+
+    fn get_sorted_derive_vec(&self) -> Vec<Derive> {
+        let mut derives: Vec<Derive> = self.0.iter().cloned().collect();
+        derives.sort();
+        derives
+    }
+
+    fn get_str_concat<'a>(&self, vec: &'a Vec<Derive>) -> StrConcat<'a, Derive> {
+        StrConcat {
+            iter: vec,
+            left_bound: "#[derive(",
+            right_bound: ")]",
+            item_prepend: "",
+            item_append: "",
+            join: ", "
+        }
+    }
 }
 
 impl FromIterator<Derive> for Derives {
@@ -71,20 +88,9 @@ impl Display for Derives {
             return Ok(());
         }
 
-        write!(f, "#[derive(").ok();
+        let derives = self.get_sorted_derive_vec();
 
-        //
-        let mut derives: Vec<Derive> = self.0.iter().cloned().collect();
-        derives.sort();
-
-        for (i, d) in derives.iter().enumerate() {
-            match i {
-                0 => write!(f, "{}", d),
-                _ => write!(f, ", {}", d),
-            }.ok();
-        }
-
-        writeln!(f, ")]")
+        writeln!(f, "{}", self.get_str_concat(&derives))
     }
 }
 

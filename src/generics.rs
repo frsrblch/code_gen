@@ -1,5 +1,6 @@
 use std::fmt::{Display, Formatter, Error};
 use std::iter::FromIterator;
+use crate::StrConcat;
 
 #[derive(Debug, Default, Clone)]
 pub struct Generics(Vec<String>);
@@ -13,6 +14,17 @@ impl Generics {
 
     pub fn two(t: &str, u: &str) -> Self {
         Generics(vec![t.to_string(), u.to_string()])
+    }
+
+    fn get_str_concat(&self) -> StrConcat<String> {
+        StrConcat {
+            iter: &self.0,
+            left_bound: "<",
+            right_bound: ">",
+            item_prepend: "",
+            item_append: "",
+            join: ", "
+        }
     }
 }
 
@@ -28,16 +40,7 @@ impl Display for Generics {
             return Ok(());
         }
 
-        write!(f, "<").ok();
-
-        for (i, g) in self.0.iter().enumerate() {
-            match i {
-                0 => write!(f, "{}", g).ok(),
-                _ => write!(f, ", {}", g).ok(),
-            };
-        }
-
-        write!(f, ">")
+        write!(f, "{}", self.get_str_concat())
     }
 }
 

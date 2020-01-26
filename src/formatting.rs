@@ -206,12 +206,12 @@ impl Display for Indent {
 
 #[derive(Debug, Clone)]
 pub struct StrConcat<'a, T: Display> {
-    iter: &'a Vec<T>,
-    left_bound: &'a str,
-    right_bound: &'a str,
-    item_prepend: &'a str,
-    item_append: &'a str,
-    join: &'a str,
+    pub iter: &'a Vec<T>,
+    pub left_bound: &'a str,
+    pub right_bound: &'a str,
+    pub item_prepend: &'a str,
+    pub item_append: &'a str,
+    pub join: &'a str,
 }
 
 impl<'a, T: Display> Display for StrConcat<'a, T> {
