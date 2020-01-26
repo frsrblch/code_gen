@@ -136,7 +136,8 @@ pub struct Field {
 }
 
 impl Field {
-    pub fn from_type(type_name: CamelCase) -> Self {
+    pub fn from_type<E: Debug>(type_name: impl TryInto<CamelCase,Error=E>) -> Self {
+        let type_name: CamelCase = type_name.try_into().unwrap();
         Field::new(type_name.clone(), &type_name)
     }
 
