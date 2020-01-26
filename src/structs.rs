@@ -2,6 +2,7 @@ use crate::*;
 use crate::formatting::{CamelCase, SnakeCase};
 use std::iter::FromIterator;
 use std::convert::TryInto;
+use std::fmt::Debug;
 
 #[derive(Debug, Clone)]
 pub struct Struct {
@@ -13,7 +14,7 @@ pub struct Struct {
 }
 
 impl Struct {
-    pub fn new(name: impl TryInto<CamelCase,Error=String>) -> Self {
+    pub fn new<E: Debug>(name: impl TryInto<CamelCase,Error=E>) -> Self {
         Struct {
             name: name.try_into().unwrap(),
             visibility: Visibility::Pub,
@@ -135,7 +136,7 @@ pub struct Field {
 }
 
 impl Field {
-    pub fn new(name: impl TryInto<SnakeCase, Error=String>, field_type: &str) -> Self {
+    pub fn new<E: Debug>(name: impl TryInto<SnakeCase, Error=E>, field_type: &str) -> Self {
         Field {
             visibility: Visibility::Pub,
             name: name.try_into().unwrap(),
