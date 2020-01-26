@@ -13,7 +13,7 @@ pub struct Struct {
 }
 
 impl Struct {
-    pub fn new(name: &str) -> Self {
+    pub fn new(name: impl TryInto<CamelCase,Error=String>) -> Self {
         Struct {
             name: name.try_into().unwrap(),
             visibility: Visibility::Pub,

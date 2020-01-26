@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 use std::fmt::{Display, Formatter, Error};
 use std::iter::FromIterator;
+use crate::CamelCase;
 
 #[derive(Debug, Default, Clone)]
 pub struct Derives(HashSet<Derive>);
@@ -73,7 +74,7 @@ impl Display for Derives {
         write!(f, "#[derive(").ok();
 
         //
-        let mut derives: Vec<Derive> = self.0.iter().copied().collect();
+        let mut derives: Vec<Derive> = self.0.iter().cloned().collect();
         derives.sort();
 
         for (i, d) in derives.iter().enumerate() {
@@ -87,7 +88,7 @@ impl Display for Derives {
     }
 }
 
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub enum Derive {
     Debug,
     Default,
@@ -96,6 +97,7 @@ pub enum Derive {
     Eq, PartialEq,
     Ord, PartialOrd,
     Hash,
+    Custom(CamelCase),
 }
 
 impl Display for Derive {
@@ -113,6 +115,7 @@ impl Display for Derive {
                 Derive::Ord => "Ord",
                 Derive::PartialOrd => "PartialOrd",
                 Derive::Hash => "Hash",
+                Derive::Custom(derive) => derive,
             }
         )
     }

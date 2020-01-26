@@ -2,7 +2,7 @@ use std::convert::TryFrom;
 use std::fmt::{Display, Formatter, Error};
 use std::ops::Deref;
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct CamelCase(String);
 
 impl Deref for CamelCase {
@@ -43,7 +43,7 @@ impl TryFrom<&str> for CamelCase {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct SnakeCase(String);
 
 impl Deref for SnakeCase {
@@ -84,7 +84,7 @@ impl TryFrom<&str> for SnakeCase {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct ScreamingSnakeCase(String);
 
 impl Deref for ScreamingSnakeCase {
