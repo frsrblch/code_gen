@@ -1,6 +1,6 @@
 use std::convert::TryFrom;
 use std::fmt::{Display, Formatter, Error};
-use std::ops::Deref;
+use std::ops::{Deref, Range};
 
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct CamelCase(String);
@@ -179,6 +179,28 @@ impl Into<ScreamingSnakeCase> for CamelCase {
     fn into(self) -> ScreamingSnakeCase {
         let snake: SnakeCase = self.into();
         snake.into()
+    }
+}
+
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
+pub struct Indent(pub u8);
+
+impl Indent {
+    pub fn new(indent: u8) -> Self {
+        Self(indent)
+    }
+
+    fn get_range(&self) -> Range<u8> {
+        Range { start: 0, end: self.0 + 1 }
+    }
+}
+
+impl Display for Indent {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        for _ in self.get_range().into_iter() {
+            write!(f, "    ").ok();
+        }
+        Ok(())
     }
 }
 

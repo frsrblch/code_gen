@@ -1,7 +1,6 @@
 use crate::*;
 use std::convert::TryInto;
 use std::fmt::Debug;
-use std::ops::Range;
 
 #[derive(Debug, Clone)]
 pub struct Impl {
@@ -91,9 +90,10 @@ impl Display for Function {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         write!(
             f,
-            "    {}fn {}() {}{}",
+            "    {}fn {}({}) {}{}",
             self.visibility,
             self.name,
+            self.parameters,
             self.get_return_type(),
             '{'
         ).ok();
@@ -112,14 +112,14 @@ impl Display for Function {
 
 #[derive(Debug, Clone)]
 pub struct CodeLine {
-    pub indent: u8,
+    pub indent: Indent,
     pub text: String,
 }
 
 impl CodeLine {
     pub fn new(indent: u8, text: &str) -> Self {
         Self {
-            indent,
+            indent: Indent(indent),
             text: text.to_string(),
         }
     }
@@ -127,11 +127,7 @@ impl CodeLine {
 
 impl Display for CodeLine {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        let mut s: String = Range { start: 0, end: (self.indent + 1) * 4 }
-            .into_iter()
-            .map(|_| ' ')
-            .collect();
-        write!(f, "{}{}", s, self.text)
+        write!(f, "{}{}", self.indent, self.text)
     }
 }
 
