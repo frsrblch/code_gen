@@ -43,6 +43,7 @@ impl Display for Impl {
 pub struct Function {
     pub name: SnakeCase,
     pub visibility: Visibility,
+    pub parameters: String,
     pub return_type: Option<String>,
     pub lines: Vec<CodeLine>,
 }
@@ -52,9 +53,15 @@ impl Function {
         Self {
             name: name.try_into().unwrap(),
             visibility: Visibility::Pub,
+            parameters: String::new(),
             return_type: None,
             lines: vec![],
         }
+    }
+
+    pub fn with_parameters(mut self, params: &str) -> Self {
+        self.parameters = params.to_string();
+        self
     }
 
     pub fn with_return(mut self, return_type: &str) -> Self {
