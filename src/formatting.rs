@@ -307,4 +307,14 @@ mod tests {
         assert_eq!(camel, snake.into());
         assert_eq!(camel, screaming.into());
     }
+
+    #[test]
+    fn indent_zero_doesnt_indent() {
+        assert_eq!("", Indent(0).to_string());
+    }
+
+    #[test]
+    fn indent_one_has_four_spaces() {
+        assert_eq!("    ", Indent(1).to_string());
+    }
 }

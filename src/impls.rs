@@ -120,7 +120,7 @@ pub struct CodeLine {
 impl CodeLine {
     pub fn new(indent: u8, text: &str) -> Self {
         Self {
-            indent: Indent(indent),
+            indent: Indent(indent + 1),
             text: text.to_string(),
         }
     }
@@ -161,7 +161,7 @@ mod tests {
         let i = Impl::new(&Struct::new("Test"))
             .add_function(Function::new("test_fn")
                 .with_visibility(Visibility::Private)
-                .add_line(CodeLine::new(1, "panic!()")));
+                .add_line(CodeLine::new(0, "panic!()")));
 
         let expected = "impl Test {\n    fn test_fn() {\n        panic!()\n    }\n}\n";
 
@@ -175,7 +175,7 @@ mod tests {
         let i = Impl::new(&Struct::new("Test"))
             .add_function(Function::new("test_fn")
                 .with_return("u32")
-                .add_line(CodeLine::new(1, "panic!()")));
+                .add_line(CodeLine::new(0, "panic!()")));
 
         let expected = "impl Test {\n    pub fn test_fn() -> u32 {\n        panic!()\n    }\n}\n";
 
