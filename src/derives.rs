@@ -58,9 +58,9 @@ impl Derives {
         derives
     }
 
-    fn get_str_concat<'a>(&self, vec: &'a Vec<Derive>) -> StrConcat<'a, Derive> {
+    fn get_str_concat<'a>(&self) -> impl Display + 'a {
         StrConcat {
-            iter: vec,
+            iter: self.get_sorted_derive_vec(),
             left_bound: "#[derive(",
             right_bound: ")]",
             item_prepend: "",
@@ -88,9 +88,7 @@ impl Display for Derives {
             return Ok(());
         }
 
-        let derives = self.get_sorted_derive_vec();
-
-        writeln!(f, "{}", self.get_str_concat(&derives))
+        writeln!(f, "{}", self.get_str_concat())
     }
 }
 

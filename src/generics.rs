@@ -16,7 +16,7 @@ impl Generics {
         Generics(vec![t.to_string(), u.to_string()])
     }
 
-    fn get_str_concat(&self) -> StrConcat<String> {
+    fn get_str_concat(&self) -> impl Display + '_ {
         StrConcat {
             iter: &self.0,
             left_bound: "<",

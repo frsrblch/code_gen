@@ -205,8 +205,8 @@ impl Display for Indent {
 }
 
 #[derive(Debug, Clone)]
-pub struct StrConcat<'a, T: Display> {
-    pub iter: &'a Vec<T>,
+pub struct StrConcat<'a, I: IntoIterator<Item=T> + Clone + 'a, T: Display> {
+    pub iter: I,
     pub left_bound: &'a str,
     pub right_bound: &'a str,
     pub item_prepend: &'a str,
@@ -214,11 +214,11 @@ pub struct StrConcat<'a, T: Display> {
     pub join: &'a str,
 }
 
-impl<'a, T: Display> Display for StrConcat<'a, T> {
+impl<'a, I: IntoIterator<Item=T> + Clone + 'a, T: Display> Display for StrConcat<'a, I, T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         write!(f, "{}", self.left_bound).ok();
 
-        self.iter.into_iter().enumerate().for_each(|(i, s)| {
+        self.iter.clone().into_iter().enumerate().for_each(|(i, s)| {
             if i != 0 {
                 write!(f, "{}", self.join).ok();
             }
@@ -348,7 +348,7 @@ mod tests {
         let items = vec!["A", "B", "C"];
 
         let concat = StrConcat {
-            iter: &items,
+            iter: items,
             left_bound: "(",
             right_bound: ")",
             item_prepend: "&mut ",
