@@ -90,6 +90,12 @@ impl Default for Fields {
     }
 }
 
+impl Extend<Field> for Fields {
+    fn extend<T: IntoIterator<Item=Field>>(&mut self, iter: T) {
+        self.0.extend(iter);
+    }
+}
+
 impl FromIterator<Field> for Fields {
     fn from_iter<T: IntoIterator<Item=Field>>(iter: T) -> Self {
         Self(iter.into_iter().collect())
