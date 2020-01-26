@@ -135,7 +135,7 @@ pub struct Field {
 }
 
 impl Field {
-    pub fn new(name: &str, field_type: &str) -> Self {
+    pub fn new(name: impl TryInto<SnakeCase, Error=String>, field_type: &str) -> Self {
         Field {
             visibility: Visibility::Pub,
             name: name.try_into().unwrap(),
