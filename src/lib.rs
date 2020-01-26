@@ -8,6 +8,7 @@ mod derives;
 mod generics;
 
 pub use structs::*;
+pub use impls::*;
 pub use formatting::*;
 pub use visibility::*;
 pub use derives::*;
