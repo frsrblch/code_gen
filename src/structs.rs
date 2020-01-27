@@ -230,7 +230,7 @@ mod tests {
 
     #[test]
     fn struct_with_generics() {
-        let s = Struct::new("Test").with_generics(Generics::one("T")).with_derives(Derives::with_debug_default());
+        let s = Struct::new("Test").with_generics(Generics::one(GenericType::generic("T"))).with_derives(Derives::with_debug_default());
 
         assert_eq!("#[derive(Debug, Default)]\npub struct Test<T>;\n", s.to_string());
     }
