@@ -29,8 +29,8 @@ impl Struct {
         self
     }
 
-    pub fn with_generics(mut self, generics: Generics) -> Self {
-        self.generics = generics;
+    pub fn add_generic(mut self, gen: GenericType) -> Self {
+        self.generics.push(gen);
         self
     }
 
@@ -47,6 +47,10 @@ impl Struct {
     pub fn with_visibility(mut self, visibility: Visibility) -> Self {
         self.visibility = visibility;
         self
+    }
+
+    pub fn get_type_string(&self) -> String {
+        format!("{}{}", self.name, self.generics)
     }
 }
 
@@ -230,8 +234,15 @@ mod tests {
 
     #[test]
     fn struct_with_generics() {
-        let s = Struct::new("Test").with_generics(Generics::one(GenericType::generic("T"))).with_derives(Derives::with_debug_default());
+        let s = Struct::new("Test").add_generic(GenericType::generic("T")).with_derives(Derives::with_debug_default());
 
         assert_eq!("#[derive(Debug, Default)]\npub struct Test<T>;\n", s.to_string());
+    }
+
+    #[test]
+    fn struct_get_type_name() {
+        let s = Struct::new("Id").add_generic(GenericType::generic("T"));
+
+        assert_eq!("Id<T>", s.get_type_string());
     }
 }

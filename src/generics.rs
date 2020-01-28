@@ -26,6 +26,10 @@ impl Generics {
             join: ", "
         }
     }
+
+    pub fn push(&mut self, gen: GenericType) {
+        self.0.push(gen);
+    }
 }
 
 impl<'a> FromIterator<GenericType> for Generics {
