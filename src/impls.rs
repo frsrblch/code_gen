@@ -31,9 +31,20 @@ impl Display for Impl {
             writeln!(f, "").ok();
         }
 
-        for function in self.functions.iter() {
-            write!(f, "{}", function).ok();
-        }
+        let functions: Vec<String> = self.functions.iter()
+            .map(ToString::to_string)
+            .collect();
+
+        let functions = StrConcat {
+            iter: functions,
+            left_bound: "",
+            right_bound: "",
+            item_prepend: "",
+            item_append: "",
+            join: "\n"
+        };
+
+        write!(f, "{}", functions).ok();
 
         writeln!(f, "{}", '}')
     }
@@ -517,5 +528,17 @@ mod tests {
         let i = t.impl_for(&s).add_function(fn_impl);
 
         assert_eq!("impl Trait for Struct {\n    fn method() -> u32 {\n        1\n    }\n}\n", i.to_string());
+    }
+
+    #[test]
+    fn impl_with_two_functions() {
+        let i = Impl::new(&Struct::new("Test"))
+            .add_function(Function::new("method_1").add_line(CodeLine::new(0, "panic!()")))
+            .add_function(Function::new("method_2").add_line(CodeLine::new(0, "panic!()")));
+
+        assert_eq!(
+            "impl Test {\n    pub fn method_1() {\n        panic!()\n    }\n\n    pub fn method_2() {\n        panic!()\n    }\n}\n",
+            i.to_string()
+        );
     }
 }
