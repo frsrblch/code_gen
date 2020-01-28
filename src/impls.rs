@@ -280,14 +280,17 @@ impl TraitImplementation {
 
     fn panic_if_invalid(&self) {
         // check types
-        let all_trait_types_included = self.trait_def.associated_types.iter().all(|ty| self.associated_types.contains_key(ty));
+        let all_trait_types_included = self.trait_def.associated_types.iter()
+            .all(|ty| self.associated_types.contains_key(ty));
         assert!(all_trait_types_included);
 
-        let all_included_types_are_required_by_trait = self.associated_types.iter().all(|(k, _)| self.trait_def.associated_types.contains(k));
+        let all_included_types_are_required_by_trait = self.associated_types.iter()
+            .all(|(k, _)| self.trait_def.associated_types.contains(k));
         assert!(all_included_types_are_required_by_trait);
 
         // check functions
-        let all_fns_are_required_by_trait = self.functions.iter().all(|f| self.fn_matches_trait_fn(f));
+        let all_fns_are_required_by_trait = self.functions.iter()
+            .all(|f| self.fn_matches_trait_fn(f));
         assert!(all_fns_are_required_by_trait);
 
         let all_nondefault_trait_fns_are_impl = self.trait_def.functions.iter()
