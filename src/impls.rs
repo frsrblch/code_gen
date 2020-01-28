@@ -344,9 +344,20 @@ impl Display for TraitImplementation {
             writeln!(f, "{}type {} = {};", Indent(1), {gen}, {conc}).ok();
         }
 
-        for f_def in self.functions.iter() {
-            write!(f, "{}", f_def).ok();
-        }
+        let functions: Vec<String> = self.functions.iter()
+            .map(ToString::to_string)
+            .collect();
+
+        let functions = StrConcat {
+            iter: functions,
+            left_bound: "",
+            right_bound: "",
+            item_prepend: "",
+            item_append: "",
+            join: "\n"
+        };
+
+        write!(f, "{}", functions).ok();
 
         writeln!(f, "{}", '}')
     }
