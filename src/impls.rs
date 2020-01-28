@@ -1,6 +1,7 @@
 use crate::*;
 use std::convert::TryInto;
 use std::fmt::Debug;
+use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 pub struct Impl {
@@ -137,7 +138,7 @@ pub struct TraitDefinition {
     pub name: CamelCase,
     pub visibility: Visibility,
     pub associated_types: Vec<CamelCase>,
-    pub functions: Vec<FunctionDefinition>,
+    pub functions: Vec<TraitFunction>,
 }
 
 impl TraitDefinition {
@@ -155,9 +156,18 @@ impl TraitDefinition {
         self
     }
 
-    pub fn add_function_definition(mut self, function_def: FunctionDefinition) -> Self {
+    pub fn add_function_definition(mut self, function_def: TraitFunction) -> Self {
         self.functions.push(function_def);
         self
+    }
+
+    pub fn impl_for(&self, strct: &Struct) -> TraitImplementation {
+        TraitImplementation {
+            trait_def: self.clone(),
+            impl_struct: strct.name.clone(),
+            associated_types: Default::default(),
+            functions: vec![],
+        }
     }
 }
 
@@ -185,14 +195,14 @@ impl Display for TraitDefinition {
 }
 
 #[derive(Debug, Clone)]
-pub struct FunctionDefinition {
+pub struct TraitFunction {
     pub name: SnakeCase,
     pub parameters: String,
     pub return_type: Option<String>,
     pub lines: Vec<CodeLine>,
 }
 
-impl FunctionDefinition {
+impl TraitFunction {
     pub fn new(name: impl TryInto<SnakeCase,Error=impl Debug>) -> Self {
         Self {
             name: name.try_into().unwrap(),
@@ -225,7 +235,7 @@ impl FunctionDefinition {
     }
 }
 
-impl Display for FunctionDefinition {
+impl Display for TraitFunction {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         write!(
             f,
@@ -245,6 +255,86 @@ impl Display for FunctionDefinition {
             }
             writeln!(f, "    {}", '}')
         }
+    }
+}
+
+
+#[derive(Debug, Clone)]
+pub struct TraitImplementation {
+    pub trait_def: TraitDefinition,
+    pub impl_struct: CamelCase,
+    pub associated_types: HashMap<CamelCase, String>,
+    pub functions: Vec<TraitFunction>,
+}
+
+impl TraitImplementation {
+    pub fn add_associated_type(mut self, associated_type_name: &str, associated_type: &str) -> Self {
+        self.associated_types.insert(associated_type_name.try_into().unwrap(), associated_type.to_string());
+        self
+    }
+
+    pub fn add_function(mut self, function_def: TraitFunction) -> Self {
+        self.functions.push(function_def);
+        self
+    }
+
+    fn panic_if_invalid(&self) {
+        // check types
+        let all_trait_types_included = self.trait_def.associated_types.iter().all(|ty| self.associated_types.contains_key(ty));
+        assert!(all_trait_types_included);
+
+        let all_included_types_are_required_by_trait = self.associated_types.iter().all(|(k, _)| self.trait_def.associated_types.contains(k));
+        assert!(all_included_types_are_required_by_trait);
+
+        // check functions
+        let all_fns_are_required_by_trait = self.functions.iter().all(|f| self.fn_matches_trait_fn(f));
+        assert!(all_fns_are_required_by_trait);
+
+        let all_nondefault_trait_fns_are_impl = self.trait_def.functions.iter()
+            .filter(|f| f.return_type.is_some() && f.lines.is_empty())
+            .all(|f| self.trait_fn_matches_impl_fn(f));
+        assert!(all_nondefault_trait_fns_are_impl);
+    }
+
+    fn fn_matches_trait_fn(&self, function: &TraitFunction) -> bool {
+        self.trait_def.functions.iter().any(|f| {
+            function.name == f.name
+                && function.parameters == f.parameters
+                && function.return_type == f.return_type
+        })
+    }
+
+    fn trait_fn_matches_impl_fn(&self, function: &TraitFunction) -> bool {
+        self.functions.iter().any(|f| {
+            function.name == f.name
+                && function.parameters == f.parameters
+                && function.return_type == f.return_type
+        })
+    }
+}
+
+impl Display for TraitImplementation {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        self.panic_if_invalid();
+
+        let types = self.associated_types.len() > 0;
+        let fns = self.functions.len() > 0;
+
+        write!(f, "impl {} for {} {}", self.trait_def.name, self.impl_struct, '{').ok();
+
+        if types || fns {
+            writeln!(f, "").ok();
+        }
+
+        for (gen, conc) in self.associated_types.iter() {
+            writeln!(f, "{}type {} = {};", Indent(1), {gen}, {conc}).ok();
+        }
+
+        for f_def in self.functions.iter() {
+            write!(f, "{}", f_def).ok();
+        }
+
+        writeln!(f, "{}", '}')
     }
 }
 
@@ -302,7 +392,7 @@ mod tests {
 
     #[test]
     fn function_def_ends_with_semicolon() {
-        let f = FunctionDefinition::new("with_thing")
+        let f = TraitFunction::new("with_thing")
             .with_parameters("mut self");
 
         assert_eq!("    fn with_thing(mut self);\n", f.to_string());
@@ -310,7 +400,7 @@ mod tests {
 
     #[test]
     fn function_def_returning_self_ends_with_semicolon() {
-        let f = FunctionDefinition::new("with_thing")
+        let f = TraitFunction::new("with_thing")
             .with_parameters("mut self")
             .with_return("Self");
 
@@ -319,7 +409,7 @@ mod tests {
 
     #[test]
     fn function_def_with_default_implementation() {
-        let f = FunctionDefinition::new("with_thing")
+        let f = TraitFunction::new("with_thing")
             .with_parameters("mut self")
             .add_line(CodeLine::new(0, "panic!()"));
 
@@ -344,8 +434,85 @@ mod tests {
     #[test]
     fn define_trait_single_fn() {
         let t = TraitDefinition::new("Test")
-            .add_function_definition(FunctionDefinition::new("method"));
+            .add_function_definition(TraitFunction::new("method"));
 
         assert_eq!("pub trait Test {\n    fn method();\n}\n", t.to_string());
+    }
+
+    #[test]
+    fn simple_trait_impl() {
+        let t = TraitDefinition::new("Trait");
+        let s = Struct::new("Struct");
+        let i =  t.impl_for(&s);
+
+        assert_eq!("impl Trait for Struct {}\n", i.to_string());
+    }
+
+    #[test]
+    #[should_panic]
+    fn implementation_missing_type() {
+        let t = TraitDefinition::new("Trait").add_associated_type("T");
+        let s = Struct::new("Struct");
+
+        let _should_panic = t.impl_for(&s).to_string();
+    }
+
+    #[test]
+    #[should_panic]
+    fn implementation_with_superfluous_type() {
+        let t = TraitDefinition::new("Trait");
+        let s = Struct::new("Struct");
+
+        let _should_panic = t.impl_for(&s)
+            .add_associated_type("T", "u32")
+            .to_string();
+    }
+
+    #[test]
+    #[should_panic]
+    fn implementation_with_superfluous_function() {
+        let t = TraitDefinition::new("Trait");
+        let s = Struct::new("Struct");
+
+        let i = t.impl_for(&s)
+            .add_function(TraitFunction::new("method").add_line(CodeLine::new(0, "panic!()")));
+
+        let _should_panic = i.to_string();
+    }
+
+    #[test]
+    #[should_panic]
+    fn implementation_missing_fn_that_doesnt_have_a_default_def() {
+        let t = TraitDefinition::new("Trait")
+            .add_function_definition(TraitFunction::new("method")
+                .with_return("u32"));
+        let s = Struct::new("Struct");
+        let i = t.impl_for(&s);
+
+        let _should_panic = i.to_string();
+    }
+
+    #[test]
+    fn implementation_with_associated_types() {
+        let t = TraitDefinition::new("Trait").add_associated_type("Idx");
+        let s = Struct::new("Struct");
+        let i = t.impl_for(&s).add_associated_type("Idx", "u32");
+
+        assert_eq!("impl Trait for Struct {\n    type Idx = u32;\n}\n", i.to_string());
+    }
+
+    #[test]
+    fn implementation_with_function() {
+        let fn_def = TraitFunction::new("method")
+            .with_return("u32");
+
+        let fn_impl = fn_def.clone()
+            .add_line(CodeLine::new(0, "1"));
+
+        let t = TraitDefinition::new("Trait").add_function_definition(fn_def);
+        let s = Struct::new("Struct");
+        let i = t.impl_for(&s).add_function(fn_impl);
+
+        assert_eq!("impl Trait for Struct {\n    fn method() -> u32 {\n        1\n    }\n}\n", i.to_string());
     }
 }
