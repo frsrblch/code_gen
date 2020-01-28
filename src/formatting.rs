@@ -1,6 +1,6 @@
-use std::convert::TryFrom;
 use std::fmt::{Display, Formatter, Error};
 use std::ops::{Deref, Range};
+use std::str::FromStr;
 
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct CamelCase(String);
@@ -19,10 +19,10 @@ impl Display for CamelCase {
     }
 }
 
-impl TryFrom<&str> for CamelCase {
-    type Error = String;
+impl FromStr for CamelCase {
+    type Err = String;
 
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         if value.contains(" ") {
             return Err(format!("CamelCase cannot contain spaces: {}", value))
         }
@@ -60,10 +60,10 @@ impl Display for SnakeCase {
     }
 }
 
-impl TryFrom<&str> for SnakeCase {
-    type Error = String;
+impl FromStr for SnakeCase {
+    type Err = String;
 
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         if value.is_empty() {
             return Err("snake_case cannot be empty".to_string());
         }
@@ -101,10 +101,10 @@ impl Display for ScreamingSnakeCase {
     }
 }
 
-impl TryFrom<&str> for ScreamingSnakeCase {
-    type Error = String;
+impl FromStr for ScreamingSnakeCase {
+    type Err = String;
 
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         if value.chars().any(char::is_lowercase) {
             return Err(format!("SCREAMING_SNAKE_CASE cannot contain lowercase: {}", value));
         }
@@ -139,13 +139,13 @@ impl Into<SnakeCase> for CamelCase {
 
 impl Into<SnakeCase> for ScreamingSnakeCase {
     fn into(self) -> SnakeCase {
-        SnakeCase::try_from(self.0.to_lowercase().as_str()).unwrap()
+        SnakeCase::from_str(self.0.to_lowercase().as_str()).unwrap()
     }
 }
 
 impl Into<ScreamingSnakeCase> for SnakeCase {
     fn into(self) -> ScreamingSnakeCase {
-        ScreamingSnakeCase::try_from(self.0.to_uppercase().as_str()).unwrap()
+        ScreamingSnakeCase::from_str(self.0.to_uppercase().as_str()).unwrap()
     }
 }
 
@@ -164,7 +164,7 @@ impl Into<CamelCase> for SnakeCase {
                 }
             });
 
-        CamelCase::try_from(output.as_str()).unwrap()
+        CamelCase::from_str(output.as_str()).unwrap()
     }
 }
 
@@ -235,79 +235,79 @@ mod tests {
 
     #[test]
     fn camel_case_spaces_returns_error() {
-        assert!(CamelCase::try_from("Nope Wont").is_err())
+        assert!(CamelCase::from_str("Nope Wont").is_err())
     }
 
     #[test]
     fn camel_case_underscore_returns_error() {
-        assert!(CamelCase::try_from("Nope_Wont").is_err())
+        assert!(CamelCase::from_str("Nope_Wont").is_err())
     }
 
     #[test]
     fn camel_case_empty_returns_error() {
-        assert!(CamelCase::try_from("").is_err());
+        assert!(CamelCase::from_str("").is_err());
     }
 
     #[test]
     fn camel_case_starts_lower_case_returns_error() {
-        assert!(CamelCase::try_from("nope").is_err());
+        assert!(CamelCase::from_str("nope").is_err());
     }
 
     #[test]
     fn camel_case_valid_input_returns_okay() {
-        assert!(CamelCase::try_from("ValidInput").is_ok());
+        assert!(CamelCase::from_str("ValidInput").is_ok());
     }
 
     #[test]
     fn snake_case_cannot_be_empty() {
-        assert!(SnakeCase::try_from("").is_err())
+        assert!(SnakeCase::from_str("").is_err())
     }
 
     #[test]
     fn snake_case_cannot_contain_uppercase() {
-        assert!(SnakeCase::try_from("upperCase").is_err());
+        assert!(SnakeCase::from_str("upperCase").is_err());
     }
 
     #[test]
     fn snake_case_cannot_contain_spaces() {
-        assert!(SnakeCase::try_from("invalid case").is_err());
+        assert!(SnakeCase::from_str("invalid case").is_err());
     }
 
     #[test]
     fn snake_case_cannot_contain_double_underscores() {
-        assert!(SnakeCase::try_from("invalid__case").is_err());
+        assert!(SnakeCase::from_str("invalid__case").is_err());
     }
 
     #[test]
     fn snake_case_valid_input() {
-        assert!(SnakeCase::try_from("valid_input").is_ok());
+        assert!(SnakeCase::from_str("valid_input").is_ok());
     }
 
     #[test]
     fn screaming_snake_case_cannot_contain_lowercase() {
-        assert!(ScreamingSnakeCase::try_from("NOPE_wont").is_err());
+        assert!(ScreamingSnakeCase::from_str("NOPE_wont").is_err());
     }
 
     #[test]
     fn screaming_snake_case_cannot_contain_spaces() {
-        assert!(ScreamingSnakeCase::try_from("NOPE WONT").is_err());
+        assert!(ScreamingSnakeCase::from_str("NOPE WONT").is_err());
     }
 
     #[test]
     fn screaming_snake_case_cannot_contain_double_underscores() {
-        assert!(ScreamingSnakeCase::try_from("NOPE__WONT").is_err());
+        assert!(ScreamingSnakeCase::from_str("NOPE__WONT").is_err());
     }
 
     #[test]
     fn screaming_snake_valid_input() {
-        assert!(ScreamingSnakeCase::try_from("VALID_INPUT").is_ok());
+        assert!(ScreamingSnakeCase::from_str("VALID_INPUT").is_ok());
     }
 
     #[test]
     fn to_snake_case() {
-        let snake = SnakeCase::try_from("body_orbit").unwrap();
-        let camel = CamelCase::try_from("BodyOrbit").unwrap();
-        let screaming = ScreamingSnakeCase::try_from("BODY_ORBIT").unwrap();
+        let snake = SnakeCase::from_str("body_orbit").unwrap();
+        let camel = CamelCase::from_str("BodyOrbit").unwrap();
+        let screaming = ScreamingSnakeCase::from_str("BODY_ORBIT").unwrap();
 
         assert_eq!(snake, camel.into());
         assert_eq!(snake, screaming.into());
@@ -315,9 +315,9 @@ mod tests {
 
     #[test]
     fn to_screaming_snake_case() {
-        let snake = SnakeCase::try_from("body_orbit").unwrap();
-        let camel = CamelCase::try_from("BodyOrbit").unwrap();
-        let screaming = ScreamingSnakeCase::try_from("BODY_ORBIT").unwrap();
+        let snake = SnakeCase::from_str("body_orbit").unwrap();
+        let camel = CamelCase::from_str("BodyOrbit").unwrap();
+        let screaming = ScreamingSnakeCase::from_str("BODY_ORBIT").unwrap();
 
         assert_eq!(screaming, camel.into());
         assert_eq!(screaming, snake.into());
@@ -325,9 +325,9 @@ mod tests {
 
     #[test]
     fn to_camel_case() {
-        let snake = SnakeCase::try_from("body_orbit").unwrap();
-        let camel = CamelCase::try_from("BodyOrbit").unwrap();
-        let screaming = ScreamingSnakeCase::try_from("BODY_ORBIT").unwrap();
+        let snake = SnakeCase::from_str("body_orbit").unwrap();
+        let camel = CamelCase::from_str("BodyOrbit").unwrap();
+        let screaming = ScreamingSnakeCase::from_str("BODY_ORBIT").unwrap();
 
         assert_eq!(camel, snake.into());
         assert_eq!(camel, screaming.into());

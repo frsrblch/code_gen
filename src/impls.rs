@@ -1,5 +1,4 @@
 use crate::*;
-use std::convert::TryInto;
 use std::fmt::Debug;
 use std::collections::HashMap;
 
@@ -60,9 +59,9 @@ pub struct Function {
 }
 
 impl Function {
-    pub fn new(name: impl TryInto<SnakeCase,Error=impl Debug>) -> Self {
+    pub fn new(name: &str) -> Self {
         Self {
-            name: name.try_into().unwrap(),
+            name: name.parse().unwrap(),
             visibility: Visibility::Pub,
             parameters: String::new(),
             return_type: None,
@@ -155,7 +154,7 @@ pub struct TraitDefinition {
 impl TraitDefinition {
     pub fn new(name: &str) -> Self {
         TraitDefinition {
-            name: name.try_into().unwrap(),
+            name: name.parse().unwrap(),
             visibility: Visibility::Pub,
             associated_types: Default::default(),
             functions: vec![],
@@ -163,7 +162,7 @@ impl TraitDefinition {
     }
 
     pub fn add_associated_type(mut self, name: &str) -> Self {
-        self.associated_types.push(name.try_into().unwrap());
+        self.associated_types.push(name.parse().unwrap());
         self
     }
 
@@ -214,9 +213,9 @@ pub struct TraitFunction {
 }
 
 impl TraitFunction {
-    pub fn new(name: impl TryInto<SnakeCase,Error=impl Debug>) -> Self {
+    pub fn new(name: &str) -> Self {
         Self {
-            name: name.try_into().unwrap(),
+            name: name.parse().unwrap(),
             parameters: String::new(),
             return_type: None,
             lines: vec![],
@@ -280,7 +279,7 @@ pub struct TraitImplementation {
 
 impl TraitImplementation {
     pub fn add_associated_type(mut self, associated_type_name: &str, associated_type: &str) -> Self {
-        self.associated_types.insert(associated_type_name.try_into().unwrap(), associated_type.to_string());
+        self.associated_types.insert(associated_type_name.parse().unwrap(), associated_type.to_string());
         self
     }
 

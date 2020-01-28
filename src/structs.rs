@@ -1,7 +1,6 @@
 use crate::*;
 use crate::formatting::{CamelCase, SnakeCase};
 use std::iter::FromIterator;
-use std::convert::TryInto;
 use std::fmt::Debug;
 
 #[derive(Debug, Clone)]
@@ -14,9 +13,9 @@ pub struct Struct {
 }
 
 impl Struct {
-    pub fn new<E: Debug>(name: impl TryInto<CamelCase,Error=E>) -> Self {
+    pub fn new(name: &str) -> Self {
         Struct {
-            name: name.try_into().unwrap(),
+            name: name.parse().unwrap(),
             visibility: Visibility::Pub,
             derives: Default::default(),
             generics: Default::default(),
@@ -29,8 +28,8 @@ impl Struct {
         self
     }
 
-    pub fn add_generic(mut self, gen: GenericType) -> Self {
-        self.generics.push(gen);
+    pub fn add_generic(mut self, gen: &str) -> Self {
+        self.generics.push(gen.to_string());
         self
     }
 
@@ -140,15 +139,15 @@ pub struct Field {
 }
 
 impl Field {
-    pub fn from_type<E: Debug>(type_name: impl TryInto<CamelCase,Error=E>) -> Self {
-        let type_name: CamelCase = type_name.try_into().unwrap();
-        Field::new(type_name.clone(), &type_name)
+    pub fn from_type(type_name: &str) -> Self {
+        let type_name: CamelCase = type_name.parse().unwrap();
+        Field::new(&type_name.clone(), &type_name)
     }
 
-    pub fn new<E: Debug>(name: impl TryInto<SnakeCase, Error=E>, field_type: &str) -> Self {
+    pub fn new(name: &str, field_type: &str) -> Self {
         Field {
             visibility: Visibility::Pub,
-            name: name.try_into().unwrap(),
+            name: name.parse().unwrap(),
             field_type: field_type.to_string(),
         }
     }
@@ -234,14 +233,14 @@ mod tests {
 
     #[test]
     fn struct_with_generics() {
-        let s = Struct::new("Test").add_generic(GenericType::generic("T")).with_derives(Derives::with_debug_default());
+        let s = Struct::new("Test").add_generic("T").with_derives(Derives::with_debug_default());
 
         assert_eq!("#[derive(Debug, Default)]\npub struct Test<T>;\n", s.to_string());
     }
 
     #[test]
     fn struct_get_type_name() {
-        let s = Struct::new("Id").add_generic(GenericType::generic("T"));
+        let s = Struct::new("Id").add_generic("T");
 
         assert_eq!("Id<T>", s.get_type_string());
     }

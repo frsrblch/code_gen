@@ -1,19 +1,20 @@
 use std::fmt::{Display, Formatter, Error, Debug};
 use std::iter::FromIterator;
 use crate::StrConcat;
+use std::str::FromStr;
 
-#[derive(Debug, Default, Clone)]
-pub struct Generics(Vec<GenericType>);
+#[derive(Debug, Default, Clone, Eq, PartialEq, Hash)]
+pub struct Generics(Vec<String>);
 
 impl Generics {
     pub fn none() -> Self { Default::default() }
 
-    pub fn one(t: GenericType) -> Self {
-        Generics(vec![t])
+    pub fn one(t: &str) -> Self {
+        Generics(vec![t.to_string()])
     }
 
-    pub fn two(t: GenericType, u: GenericType) -> Self {
-        Generics(vec![t, u])
+    pub fn two(t: &str, u: &str) -> Self {
+        Generics(vec![t.to_string(), u.to_string()])
     }
 
     fn get_str_concat(&self) -> impl Display + '_ {
@@ -27,13 +28,13 @@ impl Generics {
         }
     }
 
-    pub fn push(&mut self, gen: GenericType) {
+    pub fn push(&mut self, gen: String) {
         self.0.push(gen);
     }
 }
 
-impl<'a> FromIterator<GenericType> for Generics {
-    fn from_iter<T: IntoIterator<Item=GenericType>>(iter: T) -> Self {
+impl<'a> FromIterator<String> for Generics {
+    fn from_iter<T: IntoIterator<Item=String>>(iter: T) -> Self {
         Generics(iter.into_iter().collect())
     }
 }
@@ -48,28 +49,42 @@ impl Display for Generics {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub enum GenericType {
-    Concrete(String),
-    Generic(String),
-}
+impl FromStr for Generics {
+    type Err = String;
 
-impl GenericType {
-    pub fn concrete(ty: &str) -> Self {
-        GenericType::Concrete(ty.to_string())
-    }
-
-    pub fn generic(ty: &str) -> Self {
-        GenericType::Generic(ty.to_string())
-    }
-}
-
-impl Display for GenericType {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        match self {
-            GenericType::Concrete(s) => write!(f, "{}", s),
-            GenericType::Generic(s) => write!(f, "{}", s),
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s == "" {
+            return Ok(Generics::none())
         }
+
+        if s.chars().nth(0) != Some('<')
+            || s.chars().last() != Some('>')
+        {
+            return Err("Generics must be wrapped by '<>'".to_string());
+        }
+
+        let input = s
+            .replace('<', "")
+            .replace('>', "");
+
+        let split: Vec<String> = input
+            .split(',')
+            .map(|s| s.trim().to_string())
+            .collect::<Vec<_>>();
+
+        if split.is_empty() {
+            return Err(format!("Input cannot be empty"));
+        }
+
+        if split.iter().any(String::is_empty) {
+            return Err(format!("Input cannot be empty"));
+        }
+
+        if let Some(s) = split.iter().find(|s| s.contains(' ')) {
+            return Err(format!("Input cannot contain spaces: {}", s));
+        }
+
+        Ok(Generics(split))
     }
 }
 
@@ -86,8 +101,39 @@ mod tests {
 
     #[test]
     fn one() {
-        let g = Generics::two(GenericType::generic("ID"), GenericType::generic("T"));
+        let g = Generics::two("ID", "T");
 
         assert_eq!("<ID, T>", g.to_string());
+    }
+
+    #[test]
+    fn from_str_none() {
+        assert_eq!("".parse::<Generics>().unwrap(), Generics::none());
+    }
+
+    #[test]
+    fn from_str_without_brackets_returns_err() {
+        assert!("<A,B".parse::<Generics>().is_err());
+        assert!("A,B>".parse::<Generics>().is_err());
+    }
+
+    #[test]
+    fn from_str_empty_entries_returns_err() {
+        assert!("<A,>".parse::<Generics>().is_err());
+    }
+
+    #[test]
+    fn from_str_brackets_with_no_entries_returns_err() {
+        assert!("<>".parse::<Generics>().is_err());
+    }
+
+    #[test]
+    fn from_str_input_cannot_have_spaces_within_entries() {
+        assert!("<A, B C>".parse::<Generics>().is_err());
+    }
+
+    #[test]
+    fn from_str_valid_input_returns_ok() {
+        assert_eq!("<ID, T>".parse::<Generics>().unwrap(), Generics::two("ID", "T"));
     }
 }
