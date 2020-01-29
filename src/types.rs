@@ -16,8 +16,8 @@ impl FromStr for Type {
             None => s.parse()
                 .map(|name| Type { name, types: Generics::none() }),
             Some(i) => {
-                let name = s[0..i].parse::<CamelCase>()?;
-                let types = s[i..].parse::<Generics>()?;
+                let name = s[0..i].parse()?;
+                let types = s[i..].parse()?;
                 Ok(Type { name, types })
             },
         }

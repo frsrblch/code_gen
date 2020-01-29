@@ -24,7 +24,7 @@ impl Impl {
 
 impl Display for Impl {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "impl {} {}", self.strct.name, '{').ok();
+        write!(f, "impl {} {}", self.strct.typ, '{').ok();
 
         if self.functions.len() != 0 {
             writeln!(f, "").ok();
@@ -174,7 +174,7 @@ impl TraitDefinition {
     pub fn impl_for(&self, strct: &Struct) -> TraitImplementation {
         TraitImplementation {
             trait_def: self.clone(),
-            impl_struct: strct.name.clone(),
+            typ: strct.typ.clone(),
             associated_types: Default::default(),
             functions: vec![],
         }
@@ -272,7 +272,7 @@ impl Display for TraitFunction {
 #[derive(Debug, Clone)]
 pub struct TraitImplementation {
     pub trait_def: TraitDefinition,
-    pub impl_struct: CamelCase,
+    pub typ: Type,
     pub associated_types: HashMap<CamelCase, String>,
     pub functions: Vec<TraitFunction>,
 }
@@ -333,7 +333,7 @@ impl Display for TraitImplementation {
         let types = self.associated_types.len() > 0;
         let fns = self.functions.len() > 0;
 
-        write!(f, "impl {} for {} {}", self.trait_def.name, self.impl_struct, '{').ok();
+        write!(f, "impl {} for {} {}", self.trait_def.name, self.typ, '{').ok();
 
         if types || fns {
             writeln!(f, "").ok();

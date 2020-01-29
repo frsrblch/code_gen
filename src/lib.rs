@@ -4,8 +4,8 @@ mod formatting;
 mod visibility;
 mod types;
 mod generics;
-mod derives;
 mod structs;
+mod derives;
 mod impls;
 
 pub use structs::*;

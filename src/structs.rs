@@ -5,31 +5,24 @@ use std::fmt::Debug;
 
 #[derive(Debug, Clone)]
 pub struct Struct {
-    pub name: CamelCase,
+    pub typ: Type,
     pub visibility: Visibility,
     pub derives: Derives,
-    pub generics: Generics,
     pub fields: Fields,
 }
 
 impl Struct {
-    pub fn new(name: &str) -> Self {
+    pub fn new(ty: &str) -> Self {
         Struct {
-            name: name.parse().unwrap(),
+            typ: ty.parse().unwrap(),
             visibility: Visibility::Pub,
             derives: Default::default(),
-            generics: Default::default(),
             fields: Default::default()
         }
     }
     
     pub fn with_derives(mut self, derives: Derives) -> Self {
         self.derives = derives;
-        self
-    }
-
-    pub fn add_generic(mut self, gen: &str) -> Self {
-        self.generics.push(gen.to_string());
         self
     }
 
@@ -47,18 +40,13 @@ impl Struct {
         self.visibility = visibility;
         self
     }
-
-    pub fn get_type_string(&self) -> String {
-        format!("{}{}", self.name, self.generics)
-    }
 }
 
 impl Display for Struct {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         write!(f, "{}", self.derives).ok();
 
-        write!(f, "{vis}struct {name}", vis = self.visibility, name = self.name).ok();
-        write!(f, "{}", self.generics).ok();
+        write!(f, "{vis}struct {typ}", vis = self.visibility, typ = self.typ).ok();
 
         match self.fields.len() {
             0 => writeln!(f, ";"),
@@ -233,15 +221,15 @@ mod tests {
 
     #[test]
     fn struct_with_generics() {
-        let s = Struct::new("Test").add_generic("T").with_derives(Derives::with_debug_default());
+        let s = Struct::new("Test<T>").with_derives(Derives::with_debug_default());
 
         assert_eq!("#[derive(Debug, Default)]\npub struct Test<T>;\n", s.to_string());
     }
 
     #[test]
     fn struct_get_type_name() {
-        let s = Struct::new("Id").add_generic("T");
+        let s = Struct::new("Id<T>");
 
-        assert_eq!("Id<T>", s.get_type_string());
+        assert_eq!("Id<T>", s.typ.to_string());
     }
 }
