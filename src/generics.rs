@@ -17,17 +17,6 @@ impl Generics {
         Generics(vec![t.to_string(), u.to_string()])
     }
 
-    fn get_str_concat(&self) -> impl Display + '_ {
-        StrConcat {
-            iter: &self.0,
-            left_bound: "<",
-            right_bound: ">",
-            item_prepend: "",
-            item_append: "",
-            join: ", "
-        }
-    }
-
     pub fn push(&mut self, gen: String) {
         self.0.push(gen);
     }
@@ -45,7 +34,16 @@ impl Display for Generics {
             return Ok(());
         }
 
-        write!(f, "{}", self.get_str_concat())
+        write!(f, "{}",
+            StrConcat {
+                iter: &self.0,
+                left_bound: "<",
+                right_bound: ">",
+                item_prepend: "",
+                item_append: "",
+                join: ", "
+            }
+        )
     }
 }
 
