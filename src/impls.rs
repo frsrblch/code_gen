@@ -2,12 +2,12 @@ use crate::*;
 
 #[derive(Debug, Clone)]
 pub struct Impl {
-    pub strct: Struct,
+    pub strct: Type,
     pub functions: Vec<Function>,
 }
 
 impl Impl {
-    pub fn new(target: &Struct) -> Self {
+    pub fn new(target: Type) -> Self {
         Self {
             strct: target.clone(),
             functions: vec![],
@@ -22,7 +22,7 @@ impl Impl {
 
 impl Display for Impl {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "impl {} {}", self.strct.typ, '{').ok();
+        write!(f, "impl {} {}", self.strct, '{').ok();
 
         if self.functions.len() != 0 {
             writeln!(f, "").ok();
@@ -144,10 +144,11 @@ impl Display for CodeLine {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::str::FromStr;
 
     #[test]
     fn basic_impl() {
-        let i = Impl::new(&Struct::new("Test"));
+        let i = Impl::new(Type::from_str("Test").unwrap());
 
         println!("{}", i);
         assert_eq!("impl Test {}\n", i.to_string());
@@ -155,7 +156,7 @@ mod tests {
 
     #[test]
     fn simple_impl() {
-        let i = Impl::new(&Struct::new("Test"))
+        let i = Impl::new(Type::from_str("Test").unwrap())
             .add_function(Function::new("test_fn"));
 
         let expected = "impl Test {\n    pub fn test_fn() {}\n}\n";
@@ -167,7 +168,7 @@ mod tests {
 
     #[test]
     fn panic_impl() {
-        let i = Impl::new(&Struct::new("Test"))
+        let i = Impl::new(Type::from_str("Test").unwrap())
             .add_function(Function::new("test_fn")
                 .with_visibility(Visibility::Private)
                 .add_line(CodeLine::new(0, "panic!()")));
@@ -181,7 +182,7 @@ mod tests {
 
     #[test]
     fn fn_with_return() {
-        let i = Impl::new(&Struct::new("Test"))
+        let i = Impl::new(Type::from_str("Test").unwrap())
             .add_function(Function::new("test_fn")
                 .with_return("u32")
                 .add_line(CodeLine::new(0, "panic!()")));
@@ -195,7 +196,7 @@ mod tests {
 
     #[test]
     fn impl_with_two_functions() {
-        let i = Impl::new(&Struct::new("Test"))
+        let i = Impl::new(Type::from_str("Test").unwrap())
             .add_function(Function::new("method_1").add_line(CodeLine::new(0, "panic!()")))
             .add_function(Function::new("method_2").add_line(CodeLine::new(0, "panic!()")));
 
