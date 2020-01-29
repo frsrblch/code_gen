@@ -7,6 +7,7 @@ mod generics;
 mod structs;
 mod derives;
 mod impls;
+mod traits;
 
 pub use structs::*;
 pub use impls::*;
@@ -15,3 +16,4 @@ pub use visibility::*;
 pub use derives::*;
 pub use generics::*;
 pub use types::*;
+pub use traits::*;

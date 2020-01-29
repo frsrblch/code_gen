@@ -1,15 +1,15 @@
-use crate::{CamelCase, Generics};
+use crate::Generics;
 use std::str::FromStr;
 use std::fmt::{Display, Formatter, Error};
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct TypeName(CamelCase);
+pub struct TypeName(String);
 
 impl FromStr for TypeName {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        s.parse().map(|s| TypeName(s))
+        Ok(TypeName(s.to_string()))
     }
 }
 
