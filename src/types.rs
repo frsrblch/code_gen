@@ -3,8 +3,25 @@ use std::str::FromStr;
 use std::fmt::{Display, Formatter, Error};
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub struct TypeName(CamelCase);
+
+impl FromStr for TypeName {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        s.parse().map(|s| TypeName(s))
+    }
+}
+
+impl Display for TypeName {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        self.0.fmt(f)
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Type {
-    pub name: CamelCase,
+    pub name: TypeName,
     pub types: Generics,
 }
 
