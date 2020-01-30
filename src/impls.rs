@@ -52,7 +52,7 @@ pub struct Function {
     pub name: SnakeCase,
     pub visibility: Visibility,
     pub parameters: String,
-    pub return_type: Option<Type>,
+    pub return_type: Option<String>,
     pub lines: Vec<CodeLine>,
 }
 
@@ -72,7 +72,7 @@ impl Function {
         self
     }
 
-    pub fn with_return(mut self, return_type: Type) -> Self {
+    pub fn with_return(mut self, return_type: String) -> Self {
         self.return_type = Some(return_type);
         self
     }
@@ -150,7 +150,6 @@ impl Display for CodeLine {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::str::FromStr;
 
     #[test]
     fn basic_impl() {
@@ -190,7 +189,7 @@ mod tests {
     fn fn_with_return() {
         let i = Impl::new(Type::new("Test"))
             .add_function(Function::new("test_fn")
-                .with_return(Type::new("u32"))
+                .with_return(String::from("u32"))
                 .add_line(CodeLine::new(0, "panic!()")));
 
         let expected = "impl Test {\n    pub fn test_fn() -> u32 {\n        panic!()\n    }\n}\n";
