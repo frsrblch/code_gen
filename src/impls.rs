@@ -202,7 +202,7 @@ mod tests {
 
     #[test]
     fn impl_with_two_functions() {
-        let i = Impl::new(Type::from_str("Test").unwrap())
+        let i = Impl::new(Type::new("Test"))
             .add_function(Function::new("method_1").add_line(CodeLine::new(0, "panic!()")))
             .add_function(Function::new("method_2").add_line(CodeLine::new(0, "panic!()")));
 
