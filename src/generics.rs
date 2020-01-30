@@ -30,7 +30,7 @@ impl<'a> FromIterator<Type> for Generics {
 
 impl Display for Generics {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        if self.0.len() == 0 {
+        if self.0.is_empty() {
             return Ok(());
         }
 
@@ -57,9 +57,7 @@ impl FromStr for Generics {
             return Ok(Generics::none())
         }
 
-        if input.chars().nth(0) != Some('<')
-            || input.chars().last() != Some('>')
-        {
+        if !input.starts_with('<') || !input.ends_with('>') {
             return Err("Generics must be wrapped by '<>'".to_string());
         }
 
@@ -67,23 +65,16 @@ impl FromStr for Generics {
             .replace('<', "")
             .replace('>', "");
 
-        let results: Vec<Result<Type, String>> = input.split(',')
+        input.split(',')
             .map(|s| s.trim().parse::<Type>())
-            .collect::<Vec<_>>();
-
-        if let Some(err) = results.iter().find(|r| r.is_err()).cloned() {
-            return Err(err.unwrap_err());
-        }
-
-        let types = results.into_iter()
-            .filter_map(Result::ok)
-            .collect::<Vec<_>>();
-
-        if types.is_empty() {
-            return Err(format!("Input cannot be empty"));
-        }
-
-        Ok(Generics(types))
+            .collect::<Result<Vec<_>,_>>()
+            .and_then(|types| {
+                if types.is_empty() {
+                    Err("Input cannot be empty".to_string())
+                } else {
+                    Ok(Generics(types))
+                }
+            })
     }
 }
 

@@ -84,7 +84,7 @@ impl FromIterator<Derive> for Derives {
 
 impl Display for Derives {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        if self.0.len() == 0 {
+        if self.0.is_empty() {
             return Ok(());
         }
 

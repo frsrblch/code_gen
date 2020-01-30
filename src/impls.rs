@@ -9,7 +9,7 @@ pub struct Impl {
 impl Impl {
     pub fn new(target: Type) -> Self {
         Self {
-            strct: target.clone(),
+            strct: target,
             functions: vec![],
         }
     }
@@ -22,10 +22,10 @@ impl Impl {
 
 impl Display for Impl {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "impl {} {}", self.strct, '{').ok();
+        write!(f, "impl {} {{", self.strct).ok();
 
-        if self.functions.len() != 0 {
-            writeln!(f, "").ok();
+        if !self.functions.is_empty() {
+            writeln!(f).ok();
         }
 
         let functions: Vec<String> = self.functions.iter()
@@ -43,7 +43,7 @@ impl Display for Impl {
 
         write!(f, "{}", functions).ok();
 
-        writeln!(f, "{}", '}')
+        writeln!(f, "}}")
     }
 }
 
@@ -99,23 +99,22 @@ impl Display for Function {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         write!(
             f,
-            "{}{}fn {}({}) {}{}",
+            "{}{}fn {}({}) {}{{",
             Indent(1),
             self.visibility,
             self.name,
             self.parameters,
             self.get_return_type(),
-            '{'
         ).ok();
 
         if self.lines.is_empty() {
-            writeln!(f, "{}", '}')
+            writeln!(f, "}}")
         } else {
-            writeln!(f, "").ok();
+            writeln!(f).ok();
             for line in self.lines.iter() {
                 writeln!(f, "{}{}", Indent(1), line).ok();
             }
-            writeln!(f, "    {}", '}')
+            writeln!(f, "    }}")
         }
     }
 }

@@ -52,9 +52,9 @@ impl Display for Struct {
         match self.fields.len() {
             0 => writeln!(f, ";"),
             _ => {
-                writeln!(f, " {}", '{').ok();
+                writeln!(f, " {{").ok();
                 write!(f, "{}", self.fields).ok();
-                writeln!(f, "{}", '}')
+                writeln!(f, "}}")
             } ,
         }
     }
@@ -70,6 +70,10 @@ impl Fields {
 
     pub fn len(&self) -> usize {
         self.0.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
     }
 
     pub fn iter(&self) -> impl Iterator<Item=&Field> {

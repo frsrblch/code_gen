@@ -10,7 +10,7 @@ impl FromStr for TraitName {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        s.parse().map(|s| TraitName(s))
+        s.parse().map(TraitName)
     }
 }
 
@@ -66,13 +66,13 @@ impl Trait {
 
 impl Display for Trait {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "{}trait {} {}", self.visibility, self.name, '{').ok();
+        write!(f, "{}trait {} {{", self.visibility, self.name).ok();
 
         if self.associated_types.is_empty() && self.functions.is_empty() {
-            return writeln!(f, "{}", '}');
+            return writeln!(f, "}}");
         }
         else {
-            writeln!(f, "").ok();
+            writeln!(f).ok();
         }
 
         for ty in self.associated_types.iter() {
@@ -83,7 +83,7 @@ impl Display for Trait {
             write!(f, "{}", func).ok();
         }
 
-        writeln!(f, "{}", '}')
+        writeln!(f, "}}")
     }
 }
 
@@ -140,13 +140,13 @@ impl Display for TraitFunction {
         ).ok();
 
         if self.lines.is_empty() {
-            writeln!(f, "{}", ';')
+            writeln!(f, ";")
         } else {
-            writeln!(f, " {}", '{').ok();
+            writeln!(f, " {{").ok();
             for line in self.lines.iter() {
                 writeln!(f, "{}{}", Indent(1), line).ok();
             }
-            writeln!(f, "    {}", '}')
+            writeln!(f, "    }}")
         }
     }
 }
@@ -213,13 +213,13 @@ impl Display for TraitImplementation {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         self.panic_if_invalid();
 
-        let types = self.associated_types.len() > 0;
-        let fns = self.functions.len() > 0;
+        let has_types = !self.associated_types.is_empty();
+        let has_functions = !self.functions.is_empty();
 
-        write!(f, "impl {} for {} {}", self.trait_def.name, self.typ, '{').ok();
+        write!(f, "impl {} for {} {{", self.trait_def.name, self.typ).ok();
 
-        if types || fns {
-            writeln!(f, "").ok();
+        if has_types || has_functions {
+            writeln!(f).ok();
         }
 
         for (gen, conc) in self.associated_types.iter() {
@@ -241,7 +241,7 @@ impl Display for TraitImplementation {
 
         write!(f, "{}", functions).ok();
 
-        writeln!(f, "{}", '}')
+        writeln!(f, "}}")
     }
 }
 

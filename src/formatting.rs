@@ -21,11 +21,11 @@ impl FromStr for CamelCase {
     type Err = String;
 
     fn from_str(value: &str) -> Result<Self, Self::Err> {
-        if value.contains(" ") {
+        if value.contains(' ') {
             return Err(format!("CamelCase cannot contain spaces: {}", value))
         }
 
-        if value.contains("_") {
+        if value.contains('_') {
             return Err(format!("CamelCase cannot contain underscores: {}", value))
         }
 
@@ -68,7 +68,7 @@ impl FromStr for SnakeCase {
             return Err(format!("snake_case cannot contain upper case: {}", value));
         }
 
-        if value.contains(" ") {
+        if value.contains(' ') {
             return Err(format!("snake_case cannot contain spaces: {}", value));
         }
 
@@ -103,7 +103,7 @@ impl FromStr for ScreamingSnakeCase {
             return Err(format!("SCREAMING_SNAKE_CASE cannot contain lowercase: {}", value));
         }
 
-        if value.contains(" ") {
+        if value.contains(' ') {
             return Err(format!("SCREAMING_SNAKE_CASE cannot contain spaces: {}", value));
         }
 
@@ -184,7 +184,7 @@ impl Indent {
         Self(indent)
     }
 
-    fn get_range(&self) -> Range<u8> {
+    fn get_range(self) -> Range<u8> {
         Range { start: 0, end: self.0 }
     }
 }
