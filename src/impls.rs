@@ -52,7 +52,7 @@ pub struct Function {
     pub name: SnakeCase,
     pub visibility: Visibility,
     pub parameters: String,
-    pub return_type: Option<String>,
+    pub return_type: Option<Type>,
     pub lines: Vec<CodeLine>,
 }
 
@@ -72,8 +72,8 @@ impl Function {
         self
     }
 
-    pub fn with_return(mut self, return_type: &str) -> Self {
-        self.return_type = return_type.to_string().into();
+    pub fn with_return(mut self, return_type: Type) -> Self {
+        self.return_type = Some(return_type);
         self
     }
 
@@ -86,26 +86,33 @@ impl Function {
         self.lines.push(line);
         self
     }
-
-    fn get_return_type(&self) -> String {
-        match self.return_type.clone() {
-            Some(ty) => format!("-> {} " , ty),
-            None => String::new(),
-        }
-    }
 }
 
 impl Display for Function {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(
-            f,
-            "{}{}fn {}({}) {}{{",
-            Indent(1),
-            self.visibility,
-            self.name,
-            self.parameters,
-            self.get_return_type(),
-        ).ok();
+        match &self.return_type {
+            Some(ret) => {
+                write!(
+                    f,
+                    "{}{}fn {}({}) -> {} {{",
+                    Indent(1),
+                    self.visibility,
+                    self.name,
+                    self.parameters,
+                    ret,
+                ).ok();
+            },
+            None => {
+                write!(
+                    f,
+                    "{}{}fn {}({}) {{",
+                    Indent(1),
+                    self.visibility,
+                    self.name,
+                    self.parameters,
+                ).ok();
+            },
+        }
 
         if self.lines.is_empty() {
             writeln!(f, "}}")
@@ -147,7 +154,7 @@ mod tests {
 
     #[test]
     fn basic_impl() {
-        let i = Impl::new(Type::from_str("Test").unwrap());
+        let i = Impl::new(Type::new("Test"));
 
         println!("{}", i);
         assert_eq!("impl Test {}\n", i.to_string());
@@ -155,7 +162,7 @@ mod tests {
 
     #[test]
     fn simple_impl() {
-        let i = Impl::new(Type::from_str("Test").unwrap())
+        let i = Impl::new(Type::new("Test"))
             .add_function(Function::new("test_fn"));
 
         let expected = "impl Test {\n    pub fn test_fn() {}\n}\n";
@@ -167,7 +174,7 @@ mod tests {
 
     #[test]
     fn panic_impl() {
-        let i = Impl::new(Type::from_str("Test").unwrap())
+        let i = Impl::new(Type::new("Test"))
             .add_function(Function::new("test_fn")
                 .with_visibility(Visibility::Private)
                 .add_line(CodeLine::new(0, "panic!()")));
@@ -181,9 +188,9 @@ mod tests {
 
     #[test]
     fn fn_with_return() {
-        let i = Impl::new(Type::from_str("Test").unwrap())
+        let i = Impl::new(Type::new("Test"))
             .add_function(Function::new("test_fn")
-                .with_return("u32")
+                .with_return(Type::new("u32"))
                 .add_line(CodeLine::new(0, "panic!()")));
 
         let expected = "impl Test {\n    pub fn test_fn() -> u32 {\n        panic!()\n    }\n}\n";
