@@ -26,7 +26,7 @@ impl TraitName {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Trait {
     pub name: TraitName,
     pub visibility: Visibility,
@@ -87,7 +87,7 @@ impl Display for Trait {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct TraitFunction {
     pub name: SnakeCase,
     pub parameters: String,
@@ -152,7 +152,7 @@ impl Display for TraitFunction {
 }
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TraitImplementation {
     pub trait_def: Trait,
     pub typ: Type,

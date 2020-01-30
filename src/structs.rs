@@ -4,7 +4,7 @@ use std::iter::FromIterator;
 use std::fmt::Debug;
 use std::str::FromStr;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Struct {
     pub typ: Type,
     pub visibility: Visibility,
@@ -60,7 +60,7 @@ impl Display for Struct {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Fields(Vec<Field>);
 
 impl Fields {
@@ -108,7 +108,7 @@ impl Display for Fields {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct AnonField {
     pub visibility: Visibility,
     pub field_type: String,
@@ -124,7 +124,7 @@ impl Display for AnonField {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Field {
     pub visibility: Visibility,
     pub name: SnakeCase,

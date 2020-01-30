@@ -1,6 +1,6 @@
 use crate::*;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum Visibility {
     Pub,
     PubCrate,

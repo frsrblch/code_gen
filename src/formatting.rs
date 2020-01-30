@@ -192,7 +192,7 @@ impl Into<ScreamingSnakeCase> for CamelCase {
     }
 }
 
-#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Indent(pub u8);
 
 impl Indent {

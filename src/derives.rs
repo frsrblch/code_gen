@@ -3,7 +3,7 @@ use std::fmt::{Display, Formatter, Error};
 use std::iter::FromIterator;
 use crate::{StrConcat, TraitName};
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub struct Derives(HashSet<Derive>);
 
 impl Derives {

@@ -1,6 +1,6 @@
 use crate::*;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Impl {
     pub strct: Type,
     pub functions: Vec<Function>,
@@ -47,7 +47,7 @@ impl Display for Impl {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Function {
     pub name: SnakeCase,
     pub visibility: Visibility,
@@ -126,7 +126,7 @@ impl Display for Function {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct CodeLine {
     pub indent: Indent,
     pub text: String,
