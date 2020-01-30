@@ -1,6 +1,7 @@
 use std::fmt::{Display, Formatter, Error};
 use std::ops::{Range};
 use std::str::FromStr;
+use crate::*;
 
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct CamelCase(String);
@@ -38,6 +39,23 @@ impl FromStr for CamelCase {
         }
 
         Ok(CamelCase(value.to_string()))
+    }
+}
+
+
+
+impl Into<TypeName> for CamelCase {
+    fn into(self) -> TypeName {
+        TypeName(self.0)
+    }
+}
+
+impl Into<Type> for CamelCase {
+    fn into(self) -> Type {
+        Type {
+            name: self.into(),
+            types: Default::default()
+        }
     }
 }
 
