@@ -42,8 +42,6 @@ impl FromStr for CamelCase {
     }
 }
 
-
-
 impl Into<TypeName> for CamelCase {
     fn into(self) -> TypeName {
         TypeName(self.0)

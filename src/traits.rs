@@ -45,7 +45,7 @@ impl Trait {
     }
 
     pub fn add_associated_type(mut self, name: &str) -> Self {
-        self.associated_types.push(name.parse().unwrap());
+        self.associated_types.push(TypeName::new(name));
         self
     }
 
@@ -323,7 +323,7 @@ mod tests {
         let s = Struct::new("Struct");
 
         let _should_panic = t.impl_for(&s)
-            .add_associated_type(TypeName::from_str("T").unwrap(), Type::from_str("u32").unwrap())
+            .add_associated_type(TypeName::new("T"), Type::new("u32"))
             .to_string();
     }
 
@@ -356,7 +356,7 @@ mod tests {
         let t = Trait::new("Trait").add_associated_type("Idx");
         let s = Struct::new("Struct");
         let i = t.impl_for(&s)
-            .add_associated_type(TypeName::from_str("Idx").unwrap(), Type::from_str("u32").unwrap());
+            .add_associated_type(TypeName::new("Idx"), Type::new("u32"));
 
         assert_eq!("impl Trait for Struct {\n    type Idx = u32;\n}\n", i.to_string());
     }

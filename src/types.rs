@@ -7,7 +7,7 @@ pub struct TypeName(pub String);
 
 impl TypeName {
     pub fn new(s: &str) -> Self {
-        TypeName::from_str(s).unwrap()
+        s.parse().unwrap()
     }
 
     pub fn as_str(&self) -> &str {
@@ -19,12 +19,12 @@ impl FromStr for TypeName {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if s.is_empty() {
-            return Err("TypeName: input cannot be empty".to_string());
+        if s.contains(' ') {
+            return Err(format!("TypeName cannot contain spaces: {}", s));
         }
 
-        if s.contains(' ') {
-            return Err(format!("TypeName: input cannot contain spaces: {}", s));
+        if s.is_empty() {
+            return Err("TypeName cannot be empty".to_string());
         }
 
         Ok(TypeName(s.to_string()))
@@ -63,8 +63,12 @@ impl FromStr for Type {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.find('<') {
-            None => s.parse()
-                .map(|name| Type { name, types: Generics::none() }),
+            None => {
+                Ok(Type {
+                    name: s.parse()?,
+                    types: Default::default(),
+                })
+            },
             Some(i) => {
                 let name = s[0..i].parse()?;
                 let types = s[i..].parse()?;
@@ -86,15 +90,15 @@ mod tests {
 
     #[test]
     pub fn parse_test() {
-        let ty: Type = "Test".parse().unwrap();
+        let ty = Type::new("Test");
 
-        assert_eq!(ty, Type { name: "Test".parse().unwrap(), types: Generics::none() })
+        assert_eq!(ty, Type { name: TypeName::new("Test"), types: Generics::none() })
     }
 
     #[test]
     pub fn parse_test_with_generic() {
-        let ty: Type = "Test<ID, T>".parse().unwrap();
+        let ty = Type::new("Test<ID, T>");
 
-        assert_eq!(ty, Type { name: "Test".parse().unwrap(), types: Generics::two(Type::from_str("ID").unwrap(), Type::from_str("T").unwrap()) })
+        assert_eq!(ty, Type { name: TypeName::new("Test"), types: Generics::two(Type::from_str("ID").unwrap(), Type::from_str("T").unwrap()) })
     }
 }
