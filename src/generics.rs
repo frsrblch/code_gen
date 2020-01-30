@@ -1,29 +1,29 @@
 use std::fmt::{Display, Formatter, Error, Debug};
 use std::iter::FromIterator;
-use crate::StrConcat;
+use crate::{StrConcat, Type};
 use std::str::FromStr;
 
 #[derive(Debug, Default, Clone, Eq, PartialEq, Hash)]
-pub struct Generics(Vec<String>);
+pub struct Generics(Vec<Type>);
 
 impl Generics {
     pub fn none() -> Self { Default::default() }
 
-    pub fn one(t: &str) -> Self {
-        Generics(vec![t.to_string()])
+    pub fn one(t: Type) -> Self {
+        Generics(vec![t])
     }
 
-    pub fn two(t: &str, u: &str) -> Self {
-        Generics(vec![t.to_string(), u.to_string()])
+    pub fn two(t: Type, u: Type) -> Self {
+        Generics(vec![t, u])
     }
 
-    pub fn push(&mut self, gen: String) {
+    pub fn push(&mut self, gen: Type) {
         self.0.push(gen);
     }
 }
 
-impl<'a> FromIterator<String> for Generics {
-    fn from_iter<T: IntoIterator<Item=String>>(iter: T) -> Self {
+impl<'a> FromIterator<Type> for Generics {
+    fn from_iter<T: IntoIterator<Item=Type>>(iter: T) -> Self {
         Generics(iter.into_iter().collect())
     }
 }
@@ -50,39 +50,44 @@ impl Display for Generics {
 impl FromStr for Generics {
     type Err = String;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if s == "" {
+    fn from_str(input: &str) -> Result<Self, Self::Err> {
+        println!("{}", input);
+
+        if input == "" {
             return Ok(Generics::none())
         }
 
-        if s.chars().nth(0) != Some('<')
-            || s.chars().last() != Some('>')
+        if input.chars().nth(0) != Some('<')
+            || input.chars().last() != Some('>')
         {
             return Err("Generics must be wrapped by '<>'".to_string());
         }
 
-        let input = s
+        let input = input
             .replace('<', "")
             .replace('>', "");
 
-        let split: Vec<String> = input
-            .split(',')
-            .map(|s| s.trim().to_string())
+        let results: Vec<Result<Type, String>> = input.split(',')
+            .map(|s| s.trim().parse::<Type>())
             .collect::<Vec<_>>();
 
-        if split.is_empty() {
+        for r in results.iter() {
+            println!("{:?}", r);
+        }
+
+        if let Some(err) = results.iter().find(|r| r.is_err()).cloned() {
+            return Err(err.unwrap_err());
+        }
+
+        let types = results.into_iter()
+            .filter_map(Result::ok)
+            .collect::<Vec<_>>();
+
+        if types.is_empty() {
             return Err(format!("Input cannot be empty"));
         }
 
-        if split.iter().any(String::is_empty) {
-            return Err(format!("Input cannot be empty"));
-        }
-
-        if let Some(s) = split.iter().find(|s| s.contains(' ')) {
-            return Err(format!("Input cannot contain spaces: {}", s));
-        }
-
-        Ok(Generics(split))
+        Ok(Generics(types))
     }
 }
 
@@ -99,7 +104,7 @@ mod tests {
 
     #[test]
     fn one() {
-        let g = Generics::two("ID", "T");
+        let g = Generics::two("ID".parse().unwrap(), "T".parse().unwrap());
 
         assert_eq!("<ID, T>", g.to_string());
     }
@@ -132,6 +137,6 @@ mod tests {
 
     #[test]
     fn from_str_valid_input_returns_ok() {
-        assert_eq!("<ID, T>".parse::<Generics>().unwrap(), Generics::two("ID", "T"));
+        assert_eq!("<ID, T>".parse::<Generics>().unwrap(), Generics::two("ID".parse().unwrap(), "T".parse().unwrap()));
     }
 }

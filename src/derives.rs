@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 use std::fmt::{Display, Formatter, Error};
 use std::iter::FromIterator;
-use crate::{CamelCase, StrConcat};
+use crate::{StrConcat, TraitName};
 
 #[derive(Debug, Default, Clone)]
 pub struct Derives(HashSet<Derive>);
@@ -101,7 +101,7 @@ pub enum Derive {
     Eq, PartialEq,
     Ord, PartialOrd,
     Hash,
-    Custom(CamelCase),
+    Custom(TraitName),
 }
 
 impl Display for Derive {
@@ -119,7 +119,7 @@ impl Display for Derive {
                 Derive::Ord => "Ord",
                 Derive::PartialOrd => "PartialOrd",
                 Derive::Hash => "Hash",
-                Derive::Custom(derive) => derive,
+                Derive::Custom(derive) => derive.as_str(),
             }
         )
     }

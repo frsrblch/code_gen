@@ -1,7 +1,8 @@
 use crate::*;
-use crate::formatting::{CamelCase, SnakeCase};
+use crate::formatting::SnakeCase;
 use std::iter::FromIterator;
 use std::fmt::Debug;
+use std::str::FromStr;
 
 #[derive(Debug, Clone)]
 pub struct Struct {
@@ -127,15 +128,15 @@ pub struct Field {
 }
 
 impl Field {
-    pub fn from_type(type_name: &str) -> Self {
-        let type_name: CamelCase = type_name.parse().unwrap();
-        Field::new(&type_name.clone(), &type_name)
+    pub fn from_type(typ: Type) -> Self {
+        let field_name = SnakeCase::from_str(typ.name.as_str()).unwrap();
+        Field::new(field_name, typ)
     }
 
-    pub fn new(name: &str, field_type: &str) -> Self {
+    pub fn new(name: SnakeCase, field_type: Type) -> Self {
         Field {
             visibility: Visibility::Pub,
-            name: name.parse().unwrap(),
+            name,
             field_type: field_type.to_string(),
         }
     }
@@ -195,7 +196,7 @@ mod tests {
 
     #[test]
     fn field_struct() {
-        let s = Struct::new("Test").add_field(Field::new("field", "u32"));
+        let s = Struct::new("Test").add_field(Field::new("field".parse().unwrap(), "u32".parse().unwrap()));
 
         assert_eq!("pub struct Test {\n    pub field: u32,\n}\n", s.to_string());
     }
@@ -203,8 +204,8 @@ mod tests {
     #[test]
     fn example() {
         let arena = Struct::new("System")
-            .add_field(Field::new("name", "Component<Self, String>"))
-            .add_field(Field::new("position", "Component<Self, Position>"));
+            .add_field(Field::new("name".parse().unwrap(), "Component<Self, String>".parse().unwrap()))
+            .add_field(Field::new("position".parse().unwrap(), "Component<Self, Position>".parse().unwrap()));
 
         assert_eq!(
             "pub struct System {\n    pub name: Component<Self, String>,\n    pub position: Component<Self, Position>,\n}\n",

@@ -3,12 +3,30 @@ use std::str::FromStr;
 use std::fmt::{Display, Formatter, Error};
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct TypeName(String);
+pub struct TypeName(pub String);
+
+impl TypeName {
+    pub fn new(s: &str) -> Self {
+        TypeName::from_str(s).unwrap()
+    }
+
+    pub fn as_str(&self) -> &str {
+        self.0.as_str()
+    }
+}
 
 impl FromStr for TypeName {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.is_empty() {
+            return Err("TypeName: input cannot be empty".to_string());
+        }
+
+        if s.contains(' ') {
+            return Err(format!("TypeName: input cannot contain spaces: {}", s));
+        }
+
         Ok(TypeName(s.to_string()))
     }
 }
@@ -23,6 +41,12 @@ impl Display for TypeName {
 pub struct Type {
     pub name: TypeName,
     pub types: Generics,
+}
+
+impl Type {
+    pub fn new(s: &str) -> Self {
+        Self::from_str(s).unwrap()
+    }
 }
 
 impl FromStr for Type {
@@ -62,6 +86,6 @@ mod tests {
     pub fn parse_test_with_generic() {
         let ty: Type = "Test<ID, T>".parse().unwrap();
 
-        assert_eq!(ty, Type { name: "Test".parse().unwrap(), types: Generics::two("ID", "T") })
+        assert_eq!(ty, Type { name: "Test".parse().unwrap(), types: Generics::two(Type::from_str("ID").unwrap(), Type::from_str("T").unwrap()) })
     }
 }

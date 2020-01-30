@@ -1,15 +1,13 @@
 use std::fmt::{Display, Formatter, Error};
-use std::ops::{Deref, Range};
+use std::ops::{Range};
 use std::str::FromStr;
 
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct CamelCase(String);
 
-impl Deref for CamelCase {
-    type Target = str;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
+impl CamelCase {
+    pub fn as_str(&self) -> &str {
+        self.0.as_str()
     }
 }
 
@@ -46,11 +44,9 @@ impl FromStr for CamelCase {
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct SnakeCase(String);
 
-impl Deref for SnakeCase {
-    type Target = str;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
+impl SnakeCase {
+    pub fn as_str(&self) -> &str {
+        self.0.as_str()
     }
 }
 
@@ -87,11 +83,9 @@ impl FromStr for SnakeCase {
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct ScreamingSnakeCase(String);
 
-impl Deref for ScreamingSnakeCase {
-    type Target = str;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
+impl ScreamingSnakeCase {
+    pub fn as_str(&self) -> &str {
+        self.0.as_str()
     }
 }
 

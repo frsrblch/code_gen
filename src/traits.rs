@@ -3,7 +3,7 @@ use std::str::FromStr;
 use std::fmt::{Display, Formatter, Error};
 use std::collections::HashMap;
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct TraitName(CamelCase);
 
 impl FromStr for TraitName {
@@ -17,6 +17,12 @@ impl FromStr for TraitName {
 impl Display for TraitName {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         self.0.fmt(f)
+    }
+}
+
+impl TraitName {
+    pub fn as_str(&self) -> &str {
+        self.0.as_str()
     }
 }
 
