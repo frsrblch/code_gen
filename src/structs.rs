@@ -133,7 +133,8 @@ pub struct Field {
 
 impl Field {
     pub fn from_type(typ: Type) -> Self {
-        let field_name = SnakeCase::from_str(typ.name.as_str()).unwrap();
+        let field_name: SnakeCase = CamelCase::from_str(typ.name.as_str()).unwrap().into();
+
         Field::new(field_name, typ)
     }
 
