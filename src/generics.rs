@@ -71,10 +71,6 @@ impl FromStr for Generics {
             .map(|s| s.trim().parse::<Type>())
             .collect::<Vec<_>>();
 
-        for r in results.iter() {
-            println!("{:?}", r);
-        }
-
         if let Some(err) = results.iter().find(|r| r.is_err()).cloned() {
             return Err(err.unwrap_err());
         }
