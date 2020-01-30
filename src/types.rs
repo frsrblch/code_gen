@@ -37,6 +37,15 @@ impl Display for TypeName {
     }
 }
 
+impl Into<Type> for TypeName {
+    fn into(self) -> Type {
+        Type {
+            name: self,
+            types: Default::default(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Type {
     pub name: TypeName,
