@@ -51,8 +51,6 @@ impl FromStr for Generics {
     type Err = String;
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
-        println!("{}", input);
-
         if input == "" {
             return Ok(Generics::none())
         }
