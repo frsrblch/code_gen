@@ -9,16 +9,24 @@ pub struct Generics(Vec<Type>);
 impl Generics {
     pub fn none() -> Self { Default::default() }
 
-    pub fn one(t: Type) -> Self {
-        Generics(vec![t])
+    pub fn one(t: &str) -> Self {
+        Generics(vec![Type::new(t)])
     }
 
-    pub fn two(t: Type, u: Type) -> Self {
-        Generics(vec![t, u])
+    pub fn two(t: &str, u: &str) -> Self {
+        Generics(vec![Type::new(t), Type::new(u)])
     }
 
-    pub fn push(&mut self, gen: Type) {
-        self.0.push(gen);
+    pub fn push(&mut self, gen: &str) {
+        self.0.push(Type::new(gen));
+    }
+
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
     }
 }
 
@@ -87,7 +95,7 @@ mod tests {
 
     #[test]
     fn one() {
-        let g = Generics::two("ID".parse().unwrap(), "T".parse().unwrap());
+        let g = Generics::two("ID", "T");
 
         assert_eq!("<ID, T>", g.to_string());
     }
@@ -120,6 +128,6 @@ mod tests {
 
     #[test]
     fn from_str_valid_input_returns_ok() {
-        assert_eq!("<ID, T>".parse::<Generics>().unwrap(), Generics::two("ID".parse().unwrap(), "T".parse().unwrap()));
+        assert_eq!("<ID, T>".parse::<Generics>().unwrap(), Generics::two("ID", "T"));
     }
 }

@@ -99,7 +99,7 @@ mod tests {
     pub fn parse_test_with_generic() {
         let ty = Type::new("Test<ID, T>");
 
-        assert_eq!(ty, Type { name: TypeName::new("Test"), types: Generics::two(Type::from_str("ID").unwrap(), Type::from_str("T").unwrap()) })
+        assert_eq!(ty, Type { name: TypeName::new("Test"), types: Generics::two("ID", "T") })
     }
 
     #[test]

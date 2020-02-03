@@ -30,6 +30,7 @@ impl Display for TraitName {
 pub struct Trait {
     pub name: TraitName,
     pub visibility: Visibility,
+    pub generics: Generics,
     pub associated_types: Vec<TypeName>,
     pub functions: Vec<TraitFunction>,
 }
@@ -39,6 +40,7 @@ impl Trait {
         Trait {
             name: name.parse().unwrap(),
             visibility: Visibility::Pub,
+            generics: Default::default(),
             associated_types: Default::default(),
             functions: vec![],
         }
@@ -54,10 +56,16 @@ impl Trait {
         self
     }
 
+    pub fn with_generics(mut self, generics: Generics) -> Self {
+        self.generics = generics;
+        self
+    }
+
     pub fn impl_for(&self, strct: &Struct) -> TraitImplementation {
         TraitImplementation {
             trait_def: self.clone(),
             typ: strct.typ.clone(),
+            generics: Default::default(),
             associated_types: Default::default(),
             functions: vec![],
         }
@@ -156,6 +164,7 @@ impl Display for TraitFunction {
 pub struct TraitImplementation {
     pub trait_def: Trait,
     pub typ: Type,
+    pub generics: Generics,
     pub associated_types: HashMap<TypeName, Type>,
     pub functions: Vec<TraitFunction>,
 }
@@ -168,6 +177,11 @@ impl TraitImplementation {
 
     pub fn add_function(mut self, function_def: TraitFunction) -> Self {
         self.functions.push(function_def);
+        self
+    }
+
+    pub fn with_generics(mut self, generics: Generics) -> Self {
+        self.generics = generics;
         self
     }
 
@@ -190,6 +204,9 @@ impl TraitImplementation {
             .filter(|f| f.return_type.is_some() && f.lines.is_empty())
             .all(|f| self.trait_fn_matches_impl_fn(f));
         assert!(all_nondefault_trait_fns_are_impl);
+
+        //check generics
+        assert_eq!(self.trait_def.generics.len(), self.generics.len());
     }
 
     fn fn_matches_trait_fn(&self, function: &TraitFunction) -> bool {
@@ -374,5 +391,15 @@ mod tests {
         let i = t.impl_for(&s).add_function(fn_impl);
 
         assert_eq!("impl Trait for Struct {\n    fn method() -> u32 {\n        1\n    }\n}\n", i.to_string());
+    }
+
+    #[test]
+    #[should_panic]
+    fn implementation_missing_generics_panics() {
+        let t = Trait::new("Trait").with_generics(Generics::one("T"));
+        let s = Struct::new("Test");
+        let i = t.impl_for(&s);
+
+        let _panics = i.to_string();
     }
 }
