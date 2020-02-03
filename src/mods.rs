@@ -38,14 +38,14 @@ impl Display for Mod {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Struct;
+    use crate::{Struct, Field};
 
     #[test]
     fn simple() {
-        let s = Struct::new("Test");
+        let s = Struct::new("Test").add_field(Field::new("value", "u32"));
         let m = Mod::new("test_mod", s.to_string());
 
-        assert_eq!("pub mod test_mod {\n    pub struct Test;\n}\n", m.to_string());
+        assert_eq!("pub mod test_mod {\n    pub struct Test {\n        pub value: u32,\n    }\n}\n", m.to_string());
     }
 }
 

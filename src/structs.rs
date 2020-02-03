@@ -135,14 +135,14 @@ impl Field {
     pub fn from_type(typ: Type) -> Self {
         let field_name: SnakeCase = CamelCase::from_str(typ.name.as_str()).unwrap().into();
 
-        Field::new(field_name, typ)
+        Field::new(field_name.as_str(), &typ.to_string())
     }
 
-    pub fn new(name: SnakeCase, field_type: Type) -> Self {
+    pub fn new(name: &str, field_type: &str) -> Self {
         Field {
             visibility: Visibility::Pub,
-            name,
-            field_type: field_type.to_string(),
+            name: name.parse().unwrap(),
+            field_type: Type::from_str(field_type).unwrap().to_string(),
         }
     }
 
@@ -201,7 +201,7 @@ mod tests {
 
     #[test]
     fn field_struct() {
-        let s = Struct::new("Test").add_field(Field::new("field".parse().unwrap(), "u32".parse().unwrap()));
+        let s = Struct::new("Test").add_field(Field::new("field", "u32"));
 
         assert_eq!("pub struct Test {\n    pub field: u32,\n}\n", s.to_string());
     }
@@ -209,8 +209,8 @@ mod tests {
     #[test]
     fn example() {
         let arena = Struct::new("System")
-            .add_field(Field::new("name".parse().unwrap(), "Component<Self, String>".parse().unwrap()))
-            .add_field(Field::new("position".parse().unwrap(), "Component<Self, Position>".parse().unwrap()));
+            .add_field(Field::new("name", "Component<Self, String>"))
+            .add_field(Field::new("position", "Component<Self, Position>"));
 
         assert_eq!(
             "pub struct System {\n    pub name: Component<Self, String>,\n    pub position: Component<Self, Position>,\n}\n",
