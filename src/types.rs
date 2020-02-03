@@ -101,4 +101,11 @@ mod tests {
 
         assert_eq!(ty, Type { name: TypeName::new("Test"), types: Generics::two(Type::from_str("ID").unwrap(), Type::from_str("T").unwrap()) })
     }
+
+    #[test]
+    fn nested_generics() {
+        let component = Type::from_str("Component<Self, Id<Body>>").unwrap();
+
+        assert_eq!("Component<Self, Id<Body>>", component.to_string());
+    }
 }

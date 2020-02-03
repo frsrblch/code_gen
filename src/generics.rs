@@ -59,9 +59,7 @@ impl FromStr for Generics {
             return Err("Generics must be wrapped by '<>'".to_string());
         }
 
-        let input = input
-            .replace('<', "")
-            .replace('>', "");
+        let input = &input[1..input.len()-1];
 
         input.split(',')
             .map(|s| s.trim().parse::<Type>())
