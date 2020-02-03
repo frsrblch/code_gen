@@ -111,7 +111,7 @@ impl Display for Fields {
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct AnonField {
     pub visibility: Visibility,
-    pub field_type: String,
+    pub field_type: Type,
 }
 
 impl Display for AnonField {
@@ -128,21 +128,25 @@ impl Display for AnonField {
 pub struct Field {
     pub visibility: Visibility,
     pub name: SnakeCase,
-    pub field_type: String,
+    pub field_type: Type,
 }
 
 impl Field {
     pub fn from_type(typ: Type) -> Self {
         let field_name: SnakeCase = CamelCase::from_str(typ.name.as_str()).unwrap().into();
 
-        Field::new(field_name.as_str(), &typ.to_string())
+        Field {
+            visibility: Default::default(),
+            name: field_name,
+            field_type: typ,
+        }
     }
 
     pub fn new(name: &str, field_type: &str) -> Self {
         Field {
             visibility: Visibility::Pub,
             name: name.parse().unwrap(),
-            field_type: Type::from_str(field_type).unwrap().to_string(),
+            field_type: Type::from_str(field_type).unwrap(),
         }
     }
 
