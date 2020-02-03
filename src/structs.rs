@@ -1,6 +1,5 @@
 use crate::*;
 use crate::formatting::SnakeCase;
-use std::iter::FromIterator;
 use std::fmt::Debug;
 use std::str::FromStr;
 
@@ -9,7 +8,7 @@ pub struct Struct {
     pub typ: Type,
     pub visibility: Visibility,
     pub derives: Derives,
-    pub fields: Fields,
+    pub fields: Vec<Field>,
 }
 
 impl Struct {
@@ -27,13 +26,8 @@ impl Struct {
         self
     }
 
-    pub fn with_fields(mut self, fields: Fields) -> Self {
-        self.fields = fields;
-        self
-    }
-
     pub fn add_field(mut self, field: Field) -> Self {
-        self.fields.0.push(field);
+        self.fields.push(field);
         self
     }
 
@@ -53,58 +47,13 @@ impl Display for Struct {
             0 => writeln!(f, ";"),
             _ => {
                 writeln!(f, " {{").ok();
-                write!(f, "{}", self.fields).ok();
+
+                for field in self.fields.iter() {
+                    writeln!(f, "{}", field).ok();
+                }
                 writeln!(f, "}}")
             } ,
         }
-    }
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct Fields(Vec<Field>);
-
-impl Fields {
-    pub fn new() -> Self {
-        Default::default()
-    }
-
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
-    }
-
-    pub fn iter(&self) -> impl Iterator<Item=&Field> {
-        self.0.iter()
-    }
-}
-
-impl Default for Fields {
-    fn default() -> Self {
-        Self(vec![])
-    }
-}
-
-impl Extend<Field> for Fields {
-    fn extend<T: IntoIterator<Item=Field>>(&mut self, iter: T) {
-        self.0.extend(iter);
-    }
-}
-
-impl FromIterator<Field> for Fields {
-    fn from_iter<T: IntoIterator<Item=Field>>(iter: T) -> Self {
-        Self(iter.into_iter().collect())
-    }
-}
-
-impl Display for Fields {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        for field in self.0.iter() {
-            writeln!(f, "{}", field).ok();
-        }
-        Ok(())
     }
 }
 
