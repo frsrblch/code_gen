@@ -26,6 +26,11 @@ impl Struct {
         self
     }
 
+    pub fn with_fields(mut self, fields: Vec<Field>) -> Self {
+        self.fields = fields;
+        self
+    }
+
     pub fn add_field(mut self, field: Field) -> Self {
         self.fields.push(field);
         self
