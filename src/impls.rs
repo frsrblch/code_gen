@@ -1,4 +1,5 @@
 use crate::*;
+use std::str::FromStr;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Impl {
@@ -6,10 +7,19 @@ pub struct Impl {
     pub functions: Vec<Function>,
 }
 
-impl Impl {
-    pub fn new(target: Type) -> Self {
+impl From<&Type> for Impl {
+    fn from(typ: &Type) -> Self {
         Self {
-            strct: target,
+            strct: typ.clone(),
+            functions: vec![],
+        }
+    }
+}
+
+impl Impl {
+    pub fn new(target: &str) -> Self {
+        Self {
+            strct: Type::from_str(target).unwrap(),
             functions: vec![],
         }
     }
@@ -153,7 +163,7 @@ mod tests {
 
     #[test]
     fn basic_impl() {
-        let i = Impl::new(Type::new("Test"));
+        let i = Impl::new("Test");
 
         println!("{}", i);
         assert_eq!("impl Test {}\n", i.to_string());
@@ -161,7 +171,7 @@ mod tests {
 
     #[test]
     fn simple_impl() {
-        let i = Impl::new(Type::new("Test"))
+        let i = Impl::new("Test")
             .add_function(Function::new("test_fn"));
 
         let expected = "impl Test {\n    pub fn test_fn() {}\n}\n";
@@ -173,7 +183,7 @@ mod tests {
 
     #[test]
     fn panic_impl() {
-        let i = Impl::new(Type::new("Test"))
+        let i = Impl::new("Test")
             .add_function(Function::new("test_fn")
                 .with_visibility(Visibility::Private)
                 .add_line(CodeLine::new(0, "panic!()")));
@@ -187,7 +197,7 @@ mod tests {
 
     #[test]
     fn fn_with_return() {
-        let i = Impl::new(Type::new("Test"))
+        let i = Impl::new("Test")
             .add_function(Function::new("test_fn")
                 .with_return(String::from("u32"))
                 .add_line(CodeLine::new(0, "panic!()")));
@@ -201,7 +211,7 @@ mod tests {
 
     #[test]
     fn impl_with_two_functions() {
-        let i = Impl::new(Type::new("Test"))
+        let i = Impl::new("Test")
             .add_function(Function::new("method_1").add_line(CodeLine::new(0, "panic!()")))
             .add_function(Function::new("method_2").add_line(CodeLine::new(0, "panic!()")));
 
@@ -209,5 +219,13 @@ mod tests {
             "impl Test {\n    pub fn method_1() {\n        panic!()\n    }\n\n    pub fn method_2() {\n        panic!()\n    }\n}\n",
             i.to_string()
         );
+    }
+
+    #[test]
+    fn from_type() {
+        let ty = Type::new("Test");
+        let im = Impl::from(&ty);
+
+        assert_eq!("impl Test {}\n", im.to_string());
     }
 }
