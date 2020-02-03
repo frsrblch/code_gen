@@ -6,6 +6,12 @@ use std::collections::HashMap;
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct TraitName(CamelCase);
 
+impl TraitName {
+    pub fn as_str(&self) -> &str {
+        self.0.as_str()
+    }
+}
+
 impl FromStr for TraitName {
     type Err = String;
 
@@ -17,12 +23,6 @@ impl FromStr for TraitName {
 impl Display for TraitName {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         self.0.fmt(f)
-    }
-}
-
-impl TraitName {
-    pub fn as_str(&self) -> &str {
-        self.0.as_str()
     }
 }
 
