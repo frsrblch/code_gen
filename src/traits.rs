@@ -235,12 +235,16 @@ impl Display for TraitImplementation {
 
         write!(f, "impl {}{} for {} {{", self.trait_def.name, self.generics, self.typ).ok();
 
-        if has_types || has_functions {
+        if has_types {
             writeln!(f).ok();
         }
 
         for (gen, conc) in self.associated_types.iter() {
             writeln!(f, "{}type {} = {};", Indent(1), {gen}, {conc}).ok();
+        }
+
+        if has_functions {
+            writeln!(f).ok();
         }
 
         let functions: Vec<String> = self.functions.iter()
@@ -391,6 +395,24 @@ mod tests {
         let i = t.impl_for(&s).add_function(fn_impl);
 
         assert_eq!("impl Trait for Struct {\n    fn method() -> u32 {\n        1\n    }\n}\n", i.to_string());
+    }
+
+    #[test]
+    fn implementation_with_type_and_fn() {
+        let t = Trait::new("Trait")
+            .add_associated_type("Idx")
+            .add_function_definition(TraitFunction::new("method"));
+
+        let s = Struct::new("Struct");
+
+        let i = t.impl_for(&s)
+            .add_associated_type(TypeName::new("Idx"), Type::new("u8"))
+            .add_function(TraitFunction::new("method").add_line(CodeLine::new(0, "panic!();")));
+
+        assert_eq!(
+            "impl Trait for Struct {\n    type Idx = u8;\n\n    fn method() {\n        panic!();\n    }\n}\n",
+            i.to_string()
+        );
     }
 
     #[test]
