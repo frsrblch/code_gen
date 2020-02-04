@@ -74,7 +74,7 @@ impl Trait {
 
 impl Display for Trait {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "{}trait {} {{", self.visibility, self.name).ok();
+        write!(f, "{}trait {}{} {{", self.visibility, self.name, self.generics).ok();
 
         if self.associated_types.is_empty() && self.functions.is_empty() {
             return writeln!(f, "}}");
@@ -233,7 +233,7 @@ impl Display for TraitImplementation {
         let has_types = !self.associated_types.is_empty();
         let has_functions = !self.functions.is_empty();
 
-        write!(f, "impl {} for {} {{", self.trait_def.name, self.typ).ok();
+        write!(f, "impl {}{} for {} {{", self.trait_def.name, self.generics, self.typ).ok();
 
         if has_types || has_functions {
             writeln!(f).ok();
