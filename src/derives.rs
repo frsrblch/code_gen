@@ -24,6 +24,13 @@ impl Derives {
         derives
     }
 
+    pub fn with_debug_clone() -> Self {
+        let mut derives = Self::default();
+        derives.insert(Derive::Debug);
+        derives.insert(Derive::Clone);
+        derives
+    }
+
     pub fn with_debug_default_clone() -> Self {
         let mut derives = Self::default();
         derives.insert(Derive::Debug);
