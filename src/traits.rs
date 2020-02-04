@@ -165,13 +165,13 @@ pub struct TraitImplementation {
     pub trait_def: Trait,
     pub typ: Type,
     pub generics: Generics,
-    pub associated_types: HashMap<TypeName, Type>,
+    pub associated_types: Vec<(TypeName, Type)>,
     pub functions: Vec<TraitFunction>,
 }
 
 impl TraitImplementation {
     pub fn add_associated_type(mut self, associated_type_name: TypeName, associated_type: Type) -> Self {
-        self.associated_types.insert(associated_type_name, associated_type);
+        self.associated_types.push((associated_type_name, associated_type));
         self
     }
 
@@ -188,7 +188,7 @@ impl TraitImplementation {
     fn panic_if_invalid(&self) {
         // check types
         let all_trait_types_included = self.trait_def.associated_types.iter()
-            .all(|ty| self.associated_types.contains_key(ty));
+            .all(|ty| self.associated_types.iter().any(|(t1, t2)| t1 == ty));
         assert!(all_trait_types_included);
 
         let all_included_types_are_required_by_trait = self.associated_types.iter()
