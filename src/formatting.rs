@@ -7,6 +7,10 @@ use crate::*;
 pub struct CamelCase(String);
 
 impl CamelCase {
+    pub fn new(s: &str) -> Self {
+        s.parse().unwrap()
+    }
+
     pub fn as_str(&self) -> &str {
         self.0.as_str()
     }
@@ -65,6 +69,10 @@ impl Into<Type> for CamelCase {
 pub struct SnakeCase(String);
 
 impl SnakeCase {
+    pub fn new(s: &str) -> Self {
+        s.parse().unwrap()
+    }
+
     pub fn as_str(&self) -> &str {
         self.0.as_str()
     }
@@ -104,6 +112,10 @@ impl FromStr for SnakeCase {
 pub struct ScreamingSnakeCase(String);
 
 impl ScreamingSnakeCase {
+    pub fn new(s: &str) -> Self {
+        s.parse().unwrap()
+    }
+
     pub fn as_str(&self) -> &str {
         self.0.as_str()
     }
