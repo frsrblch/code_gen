@@ -1,7 +1,6 @@
 use crate::*;
 use std::str::FromStr;
 use std::fmt::{Display, Formatter, Error};
-use std::collections::HashMap;
 
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct TraitName(CamelCase);
@@ -188,7 +187,7 @@ impl TraitImplementation {
     fn panic_if_invalid(&self) {
         // check types
         let all_trait_types_included = self.trait_def.associated_types.iter()
-            .all(|ty| self.associated_types.iter().any(|(t1, t2)| t1 == ty));
+            .all(|ty| self.associated_types.iter().any(|(t1, _t2)| t1 == ty));
         assert!(all_trait_types_included);
 
         let all_included_types_are_required_by_trait = self.associated_types.iter()

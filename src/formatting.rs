@@ -10,6 +10,10 @@ impl CamelCase {
     pub fn as_str(&self) -> &str {
         self.0.as_str()
     }
+
+    pub fn into_snake_case(&self) -> SnakeCase {
+        self.clone().into()
+    }
 }
 
 impl Display for CamelCase {
