@@ -211,16 +211,12 @@ impl TraitImplementation {
     fn fn_matches_trait_fn(&self, function: &TraitFunction) -> bool {
         self.trait_def.functions.iter().any(|f| {
             function.name == f.name
-                && function.parameters == f.parameters
-                && function.return_type == f.return_type
         })
     }
 
     fn trait_fn_matches_impl_fn(&self, function: &TraitFunction) -> bool {
         self.functions.iter().any(|f| {
             function.name == f.name
-                && function.parameters == f.parameters
-                && function.return_type == f.return_type
         })
     }
 }
