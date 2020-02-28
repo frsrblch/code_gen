@@ -60,6 +60,7 @@ impl Display for Impl {
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Function {
     pub name: SnakeCase,
+    pub generics: Generics,
     pub visibility: Visibility,
     pub parameters: String,
     pub return_type: Option<String>,
@@ -70,11 +71,17 @@ impl Function {
     pub fn new(name: &str) -> Self {
         Self {
             name: name.parse().unwrap(),
+            generics: Generics::none(),
             visibility: Visibility::Pub,
             parameters: String::new(),
             return_type: None,
             lines: vec![],
         }
+    }
+
+    pub fn with_generics(mut self, generics: Generics) -> Self {
+        self.generics = generics;
+        self
     }
 
     pub fn with_parameters(mut self, params: &str) -> Self {
@@ -104,10 +111,11 @@ impl Display for Function {
             Some(ret) => {
                 write!(
                     f,
-                    "{}{}fn {}({}) -> {} {{",
+                    "{}{}fn {}{}({}) -> {} {{",
                     Indent(1),
                     self.visibility,
                     self.name,
+                    self.generics,
                     self.parameters,
                     ret,
                 ).ok();
@@ -115,10 +123,11 @@ impl Display for Function {
             None => {
                 write!(
                     f,
-                    "{}{}fn {}({}) {{",
+                    "{}{}fn {}{}({}) {{",
                     Indent(1),
                     self.visibility,
                     self.name,
+                    self.generics,
                     self.parameters,
                 ).ok();
             },
@@ -227,5 +236,13 @@ mod tests {
         let im = Impl::from(&ty);
 
         assert_eq!("impl Test {}\n", im.to_string());
+    }
+
+    #[test]
+    fn fn_with_lifetime() {
+        let generic_fn = Function::new("test")
+            .with_generics(Generics::one("'a"));
+
+        assert_eq!("    pub fn test<'a>() {}\n", generic_fn.to_string());
     }
 }

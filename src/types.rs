@@ -62,6 +62,10 @@ impl FromStr for Type {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if let Some('\'') = s.chars().nth(0) {
+            return Err(format!("Type cannot start with an apostrophe: {}", s));
+        }
+
         match s.find('<') {
             None => {
                 Ok(Type {
