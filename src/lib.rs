@@ -12,6 +12,7 @@ mod traits;
 mod mods;
 
 pub use structs::*;
+pub use enums::*;
 pub use impls::*;
 pub use formatting::*;
 pub use visibility::*;
