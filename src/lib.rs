@@ -5,6 +5,7 @@ mod visibility;
 mod types;
 mod generics;
 mod structs;
+mod enums;
 mod derives;
 mod impls;
 mod traits;
