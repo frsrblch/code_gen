@@ -10,15 +10,19 @@ impl Generics {
     pub fn none() -> Self { Default::default() }
 
     pub fn one(t: &str) -> Self {
-        Generics(vec![Generic::from_str(t).unwrap()])
+        Generics(vec![Generic::new(t)])
     }
 
     pub fn two(t: &str, u: &str) -> Self {
-        Generics(vec![Generic::from_str(t).unwrap(), Generic::from_str(u).unwrap()])
+        Generics(vec![Generic::new(t), Generic::new(u)])
+    }
+
+    pub fn push_front(&mut self, gen: &str) {
+        self.0.insert(0, Generic::new(gen));
     }
 
     pub fn push(&mut self, gen: &str) {
-        self.0.push(Generic::from_str(gen).unwrap());
+        self.0.push(Generic::new(gen));
     }
 
     pub fn len(&self) -> usize {
@@ -86,6 +90,12 @@ impl FromStr for Generics {
 pub enum Generic {
     Type(Type),
     Lifetime(Lifetime),
+}
+
+impl Generic {
+    pub fn new(gen: &str) -> Self {
+        Self::from_str(gen).unwrap()
+    }
 }
 
 impl Display for Generic {
