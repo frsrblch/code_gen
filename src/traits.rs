@@ -60,10 +60,10 @@ impl Trait {
         self
     }
 
-    pub fn impl_for(&self, strct: &Struct) -> TraitImplementation {
-        TraitImplementation {
+    pub fn impl_for(&self, typ: &Type) -> TraitImpl {
+        TraitImpl {
             trait_def: self.clone(),
-            typ: strct.typ.clone(),
+            typ: typ.clone(),
             generics: Default::default(),
             associated_types: Default::default(),
             functions: vec![],
@@ -160,7 +160,7 @@ impl Display for TraitFunction {
 
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub struct TraitImplementation {
+pub struct TraitImpl {
     pub trait_def: Trait,
     pub typ: Type,
     pub generics: Generics,
@@ -168,7 +168,7 @@ pub struct TraitImplementation {
     pub functions: Vec<TraitFunction>,
 }
 
-impl TraitImplementation {
+impl TraitImpl {
     pub fn add_associated_type(mut self, associated_type_name: TypeName, associated_type: Type) -> Self {
         self.associated_types.push((associated_type_name, associated_type));
         self
@@ -221,7 +221,7 @@ impl TraitImplementation {
     }
 }
 
-impl Display for TraitImplementation {
+impl Display for TraitImpl {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         self.panic_if_invalid();
 
@@ -318,7 +318,7 @@ mod tests {
     fn simple_trait_impl() {
         let t = Trait::new("Trait");
         let s = Struct::new("Struct");
-        let i =  t.impl_for(&s);
+        let i =  t.impl_for(&s.typ);
 
         assert_eq!("impl Trait for Struct {}\n", i.to_string());
     }
@@ -329,7 +329,7 @@ mod tests {
         let t = Trait::new("Trait").add_associated_type("T");
         let s = Struct::new("Struct");
 
-        let _should_panic = t.impl_for(&s).to_string();
+        let _should_panic = t.impl_for(&s.typ).to_string();
     }
 
     #[test]
@@ -338,7 +338,7 @@ mod tests {
         let t = Trait::new("Trait");
         let s = Struct::new("Struct");
 
-        let _should_panic = t.impl_for(&s)
+        let _should_panic = t.impl_for(&s.typ)
             .add_associated_type(TypeName::new("T"), Type::new("u32"))
             .to_string();
     }
@@ -349,7 +349,7 @@ mod tests {
         let t = Trait::new("Trait");
         let s = Struct::new("Struct");
 
-        let i = t.impl_for(&s)
+        let i = t.impl_for(&s.typ)
             .add_function(TraitFunction::new("method").add_line(CodeLine::new(0, "panic!()")));
 
         let _should_panic = i.to_string();
@@ -362,7 +362,7 @@ mod tests {
             .add_function_definition(TraitFunction::new("method")
                 .with_return("u32"));
         let s = Struct::new("Struct");
-        let i = t.impl_for(&s);
+        let i = t.impl_for(&s.typ);
 
         let _should_panic = i.to_string();
     }
@@ -371,7 +371,7 @@ mod tests {
     fn implementation_with_associated_types() {
         let t = Trait::new("Trait").add_associated_type("Idx");
         let s = Struct::new("Struct");
-        let i = t.impl_for(&s)
+        let i = t.impl_for(&s.typ)
             .add_associated_type(TypeName::new("Idx"), Type::new("u32"));
 
         assert_eq!("impl Trait for Struct {\n    type Idx = u32;\n}\n", i.to_string());
@@ -387,7 +387,7 @@ mod tests {
 
         let t = Trait::new("Trait").add_function_definition(fn_def);
         let s = Struct::new("Struct");
-        let i = t.impl_for(&s).add_function(fn_impl);
+        let i = t.impl_for(&s.typ).add_function(fn_impl);
 
         assert_eq!("impl Trait for Struct {\n    fn method() -> u32 {\n        1\n    }\n}\n", i.to_string());
     }
@@ -400,7 +400,7 @@ mod tests {
 
         let s = Struct::new("Struct");
 
-        let i = t.impl_for(&s)
+        let i = t.impl_for(&s.typ)
             .add_associated_type(TypeName::new("Idx"), Type::new("u8"))
             .add_function(TraitFunction::new("method").add_line(CodeLine::new(0, "panic!();")));
 
@@ -415,7 +415,7 @@ mod tests {
     fn implementation_missing_generics_panics() {
         let t = Trait::new("Trait").with_generics(Generics::one("T"));
         let s = Struct::new("Test");
-        let i = t.impl_for(&s);
+        let i = t.impl_for(&s.typ);
 
         let _panics = i.to_string();
     }

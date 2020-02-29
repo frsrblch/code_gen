@@ -3,6 +3,29 @@ use crate::formatting::SnakeCase;
 use std::fmt::Debug;
 use std::str::FromStr;
 
+#[derive(Debug, Clone)]
+pub struct StructType {
+    pub base: Struct,
+    pub enum_impl: Option<Impl>,
+    pub enum_traits: Vec<TraitImpl>,
+}
+
+impl Display for StructType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        writeln!(f, "{}", self.base).ok();
+
+        if let Some(i) = &self.enum_impl {
+            writeln!(f, "{}", i).ok();
+        }
+
+        for i in &self.enum_traits {
+            writeln!(f, "{}", i).ok();
+        }
+
+        Ok(())
+    }
+}
+
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Struct {
     pub typ: Type,

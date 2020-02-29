@@ -1,12 +1,34 @@
 use crate::*;
 use std::fmt::{Display, Result};
 
+#[derive(Debug, Clone)]
+pub struct EnumType {
+    pub base: Enum,
+    pub enum_impl: Option<Impl>,
+    pub enum_traits: Vec<TraitImpl>,
+}
+
+impl Display for EnumType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        writeln!(f, "{}", self.base).ok();
+
+        if let Some(i) = &self.enum_impl {
+            writeln!(f, "{}", i).ok();
+        }
+
+        for i in &self.enum_traits {
+            writeln!(f, "{}", i).ok();
+        }
+
+        Ok(())
+    }
+}
+
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Enum {
     pub typ: Type,
     pub visibility: Visibility,
     pub derives: Derives,
-    // pub fields: Vec<Field>,
     pub options: Vec<EnumOption>
 }
 
@@ -152,5 +174,43 @@ r#"pub enum Option {
 }
 "#;
         assert_eq!(expected, option.to_string());
+    }
+
+    #[test]
+    fn enum_type() {
+        let default = Trait::new("Default")
+            .add_function_definition(TraitFunction::new("default")
+                .with_return("Self"));
+
+        let base = Enum::new("Test")
+            .with_derives(Derives::with_debug_default_clone())
+            .add_option(EnumOption::new("Number", vec!["u32"]));
+
+        let default_impl = default.impl_for(&base.typ)
+            .add_function(TraitFunction::new("default")
+                .with_return("Self")
+                .add_line(CodeLine::new(0, "Test::Number(0)")));
+
+        let enum_type = EnumType {
+            base: base.clone(),
+            enum_impl: None,
+            enum_traits: vec![default_impl],
+        };
+
+        let expected =
+r#"#[derive(Debug, Default, Clone)]
+pub enum Test {
+    Number(u32),
+}
+
+impl Default for Test {
+    fn default() -> Self {
+        Test::Number(0)
+    }
+}
+
+"#;
+
+        assert_eq!(expected, enum_type.to_string());
     }
 }
